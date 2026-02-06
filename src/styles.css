@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@theme {
+	--font-family-sans: "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Noto Sans TC", sans-serif;
+	--color-pearl: #f4f5f7;
+	--color-ink: #1b1d20;
+	--color-frost: rgba(255, 255, 255, 0.75);
+	--shadow-soft: 0 20px 60px rgba(15, 23, 42, 0.12);
+	--shadow-glow: 0 0 35px rgba(31, 41, 55, 0.18);
+}
+
+@layer base {
+	body {
+		font-family: var(--font-family-sans);
+		background: radial-gradient(circle at top left, #ffffff 0%, #f4f5f7 45%, #eceff3 100%);
+	}
+
+	a {
+		text-decoration: none;
+	}
+}
+
+@layer components {
+	.glass-card {
+		@apply relative rounded-[28px] border border-white/60 bg-white/75 p-8 shadow-[var(--shadow-soft)] backdrop-blur-2xl sm:p-12;
+	}
+
+	.input-field {
+		@apply w-full rounded-2xl border border-white/80 bg-white/80 px-5 py-4 text-base text-ink shadow-[0_10px_25px_rgba(15,23,42,0.08)] outline-none transition duration-200 placeholder:text-ink/40 focus:border-white focus:ring-2 focus:ring-ink/10;
+	}
+
+	.select-arrow {
+		@apply pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-ink/50;
+	}
+
+	.mode-toggle {
+		@apply grid grid-cols-2 rounded-2xl border border-white/70 bg-white/70 p-1 shadow-[0_12px_25px_rgba(15,23,42,0.06)];
+	}
+
+	.mode-toggle__button {
+		@apply rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink;
+	}
+
+	.mode-toggle__button.is-active {
+		@apply bg-ink text-white shadow-[0_12px_20px_rgba(15,23,42,0.2)];
+	}
+
+	.input-glow {
+		@apply pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition duration-300;
+		box-shadow: 0 0 35px rgba(31, 41, 55, 0.2);
+	}
+
+	.input-field:focus + .input-glow {
+		@apply opacity-100;
+	}
+
+	.result-card {
+		@apply rounded-3xl border border-white/70 bg-white/65 p-6 shadow-[0_18px_45px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:p-8;
+	}
+
+	.pill-button {
+		@apply rounded-full border border-ink/10 bg-ink px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(15,23,42,0.12)];
+	}
+
+	.pill-button--ghost {
+		@apply bg-transparent text-ink/70 hover:text-ink;
+	}
+
+	.pill-button--soft {
+		@apply bg-ink/10 text-ink hover:bg-ink hover:text-white;
+	}
+
+	.list-stack {
+		@apply space-y-3;
+	}
+
+	.list-item {
+		@apply flex items-center justify-between gap-3 rounded-2xl border border-white/70 bg-white/80 px-4 py-3 text-sm text-ink/80 shadow-[0_12px_25px_rgba(15,23,42,0.06)];
+	}
+
+	.list-item--stack {
+		@apply flex-col items-start;
+	}
+
+	.icon-button {
+		@apply rounded-full border border-ink/10 bg-transparent px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/55 transition hover:border-ink/20 hover:text-ink;
+	}
+
+	.chip-stack {
+		@apply flex flex-wrap gap-2;
+	}
+
+	.chip {
+		@apply rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-ink/70;
+	}
+
+	.empty-state {
+		@apply rounded-2xl border border-dashed border-ink/15 bg-white/60 px-4 py-4 text-xs uppercase tracking-[0.2em] text-ink/40;
+	}
+
+	.glow-orb {
+		@apply absolute rounded-full blur-3xl;
+		background: radial-gradient(circle, rgba(90, 106, 255, 0.2), rgba(90, 106, 255, 0));
+		filter: blur(60px);
+	}
+
+	.glow-orb--one {
+		@apply left-[-12%] top-[-10%] h-[320px] w-[320px];
+	}
+
+	.glow-orb--two {
+		@apply right-[-10%] top-[10%] h-[420px] w-[420px];
+		background: radial-gradient(circle, rgba(61, 201, 166, 0.22), rgba(61, 201, 166, 0));
+	}
+
+	.glow-orb--three {
+		@apply bottom-[-18%] left-[20%] h-[380px] w-[380px];
+		background: radial-gradient(circle, rgba(255, 199, 94, 0.18), rgba(255, 199, 94, 0));
+	}
+}

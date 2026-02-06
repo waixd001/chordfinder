@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Chord Utils Tests</title>
+		<style>
+			body {
+				font-family: "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Noto Sans TC", sans-serif;
+				background: #f4f5f7;
+				color: #1b1d20;
+				margin: 0;
+				padding: 32px;
+			}
+			.card {
+				max-width: 720px;
+				margin: 0 auto;
+				background: #ffffff;
+				border-radius: 20px;
+				padding: 24px;
+				box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+			}
+			.result {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				padding: 12px 0;
+				border-bottom: 1px solid #e5e7eb;
+			}
+			.result:last-child {
+				border-bottom: none;
+			}
+			.pass {
+				color: #16a34a;
+				font-weight: 600;
+			}
+			.fail {
+				color: #dc2626;
+				font-weight: 600;
+			}
+			.error {
+				margin-top: 6px;
+				color: #6b7280;
+				font-size: 13px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="card">
+			<h1>Chord Utils Tests</h1>
+			<div id="results"></div>
+		</div>
+		<script type="module">
+			import { runChordUtilsTests } from "./chord-utils.test.js";
+
+			const results = runChordUtilsTests();
+			const container = document.getElementById("results");
+
+			results.forEach((result) => {
+				const row = document.createElement("div");
+				row.className = "result";
+				const name = document.createElement("span");
+				name.textContent = result.name;
+				const status = document.createElement("span");
+				status.className = result.status === "pass" ? "pass" : "fail";
+				status.textContent = result.status.toUpperCase();
+				row.appendChild(name);
+				row.appendChild(status);
+				container.appendChild(row);
+
+				if (result.status === "fail") {
+					const error = document.createElement("div");
+					error.className = "error";
+					error.textContent = result.error?.message ?? "Unknown error.";
+					container.appendChild(error);
+				}
+			});
+		</script>
+	</body>
+</html>

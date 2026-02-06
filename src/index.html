@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="zh-Hant">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link href="/styles.css" rel="stylesheet" />
+		<title>和弦代號查詢器</title>
+	</head>
+	<body class="min-h-screen bg-pearl text-ink antialiased">
+		<div class="absolute inset-0 -z-10 overflow-hidden">
+			<div class="glow-orb glow-orb--one"></div>
+			<div class="glow-orb glow-orb--two"></div>
+			<div class="glow-orb glow-orb--three"></div>
+		</div>
+
+		<main class="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-14">
+			<section class="glass-card space-y-8">
+				<header class="space-y-3">
+					<p class="text-sm uppercase tracking-[0.2em] text-ink/50">Chord Finder</p>
+					<h1 class="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">不囉唆的和弦代號查詢器</h1>
+					<p class="text-base text-ink/65 sm:text-lg">輸入和弦代號，立即看到組成音與指板譜。</p>
+					<a
+						class="inline-flex items-center gap-2 text-sm font-medium text-ink/70 hover:text-ink"
+						href="https://nicechord.com"
+					>
+						<span class="h-2 w-2 rounded-full bg-ink/30"></span>
+						NiceChord 好和弦
+					</a>
+				</header>
+
+				<div class="space-y-4">
+					<label class="text-sm font-medium text-ink/70" for="chord-input">和弦代號</label>
+					<div class="relative">
+						<input
+							type="text"
+							id="chord-input"
+							placeholder="例如：Cmaj7、F#m7b5、Bb13"
+							class="input-field"
+							autocomplete="off"
+							inputmode="text"
+						/>
+						<span class="input-glow"></span>
+					</div>
+					<p class="text-xs text-ink/45">輸入時會自動更新結果，不需要按下 Enter。</p>
+				</div>
+
+				<div class="space-y-3">
+					<label class="text-sm font-medium text-ink/70" for="key-root">歌曲調性</label>
+					<div class="grid gap-3 sm:grid-cols-[1.2fr_1fr]">
+						<div class="relative">
+							<select id="key-root" class="input-field appearance-none pr-12"></select>
+							<span class="select-arrow">▾</span>
+						</div>
+						<div class="mode-toggle" role="group" aria-label="Mode">
+							<button id="mode-major" class="mode-toggle__button" type="button" data-mode="major">
+								Major
+							</button>
+							<button id="mode-minor" class="mode-toggle__button" type="button" data-mode="minor">
+								Minor
+							</button>
+						</div>
+					</div>
+					<p class="text-xs text-ink/45">調性會影響顯示音名（例如 C# major 會顯示 E#）。</p>
+				</div>
+
+				<div class="result-card">
+					<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Result</p>
+					<div id="chordOutput" class="mt-3 text-lg font-medium text-ink/85"></div>
+					<div id="paper" class="mt-6"></div>
+				</div>
+
+				<div class="grid gap-6 lg:grid-cols-2">
+					<div class="result-card space-y-4">
+						<div class="flex items-center justify-between gap-4">
+							<p class="text-sm uppercase tracking-[0.2em] text-ink/45">History</p>
+							<div class="flex gap-2">
+								<button id="history-add" class="pill-button">加入</button>
+								<button id="history-clear" class="pill-button pill-button--ghost">清空</button>
+							</div>
+						</div>
+						<div id="historyList" class="list-stack"></div>
+					</div>
+
+					<div class="result-card space-y-5">
+						<div class="flex items-center justify-between gap-4">
+							<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Progression</p>
+							<div class="flex gap-2">
+								<button id="progression-add" class="pill-button">加入</button>
+								<button id="progression-clear" class="pill-button pill-button--ghost">清空</button>
+							</div>
+						</div>
+						<div>
+							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Current</p>
+							<div id="progressionCurrent" class="chip-stack mt-2"></div>
+						</div>
+						<div class="flex items-center justify-between gap-4">
+							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Saved</p>
+							<button id="progression-save" class="pill-button pill-button--soft">儲存進程</button>
+						</div>
+						<div id="progressionHistory" class="list-stack"></div>
+					</div>
+				</div>
+			</section>
+		</main>
+
+		<script type="module" src="/main.js"></script>
+	</body>
+</html>
