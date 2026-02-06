@@ -26,7 +26,7 @@
 	}
 
 	.input-field {
-		@apply w-full rounded-2xl border border-white/80 bg-white/80 px-5 py-4 text-base text-ink shadow-[0_10px_25px_rgba(15,23,42,0.08)] outline-none transition duration-200 placeholder:text-ink/40 focus:border-white focus:ring-2 focus:ring-ink/10;
+		@apply w-full rounded-2xl border border-white/80 bg-white/80 px-5 py-4 text-base text-ink shadow-[0_10px_25px_rgba(15,23,42,0.08)] outline-none transition duration-200 placeholder:text-ink/40 focus:border-white focus:ring-2 focus:ring-ink/10 focus:ring-offset-2 focus:ring-offset-white/50;
 	}
 
 	.select-arrow {
@@ -59,7 +59,7 @@
 	}
 
 	.pill-button {
-		@apply rounded-full border border-ink/10 bg-ink px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(15,23,42,0.12)];
+		@apply rounded-full border border-ink/10 bg-ink px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-[0_10px_20px_rgba(15,23,42,0.12)] focus:outline-none focus:ring-2 focus:ring-ink/20 focus:ring-offset-2 focus:ring-offset-white/50;
 	}
 
 	.pill-button--ghost {
@@ -83,11 +83,11 @@
 	}
 
 	.history-button {
-		@apply rounded-full border border-ink/10 bg-white/40 px-4 py-2 text-sm font-medium text-ink/80 backdrop-blur-sm transition hover:bg-white/60 hover:text-ink active:scale-95;
+		@apply rounded-full border border-ink/10 bg-white/40 px-4 py-2 text-sm font-medium text-ink/80 backdrop-blur-sm transition hover:bg-white/60 hover:text-ink active:scale-95 focus:outline-none focus:ring-2 focus:ring-ink/20 focus:ring-offset-2 focus:ring-offset-white/50;
 	}
 
 	.icon-button {
-		@apply rounded-full border border-ink/10 bg-transparent px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/55 transition hover:border-ink/20 hover:text-ink;
+		@apply rounded-full border border-ink/10 bg-transparent px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-ink/55 transition hover:border-ink/20 hover:text-ink focus:outline-none focus:ring-2 focus:ring-ink/20 focus:ring-offset-2 focus:ring-offset-white/50;
 	}
 
 	.chip-stack {
