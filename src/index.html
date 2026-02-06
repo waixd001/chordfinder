@@ -43,11 +43,13 @@
 					</div>
 					<!-- 歷史按鈕區域 -->
 					<div class="flex items-center justify-between mt-4">
-						<div class="flex items-center gap-3">
-							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">History</p>
-							<div id="historyButtons" class="flex flex-wrap gap-2"></div>
+						<div class="flex items-center gap-3 min-w-0">
+							<p class="text-xs uppercase tracking-[0.2em] text-ink/45 shrink-0">History</p>
+							<div class="history-scroll-container">
+								<div id="historyButtons" class="flex gap-2"></div>
+							</div>
 						</div>
-						<div class="flex gap-2">
+						<div class="flex gap-2 shrink-0">
 							<button id="history-add" class="pill-button">加入</button>
 							<button id="history-clear" class="pill-button pill-button--ghost">清空</button>
 						</div>

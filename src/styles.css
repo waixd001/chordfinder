@@ -121,4 +121,13 @@
 		@apply bottom-[-18%] left-[20%] h-[380px] w-[380px];
 		background: radial-gradient(circle, rgba(255, 199, 94, 0.18), rgba(255, 199, 94, 0));
 	}
+
+	.history-scroll-container {
+		@apply overflow-x-auto flex-1 min-w-0;
+		scrollbar-width: none; /* Firefox */
+		-ms-overflow-style: none; /* Internet Explorer 10+ */
+	}
+	.history-scroll-container::-webkit-scrollbar {
+		display: none; /* Safari and Chrome */
+	}
 }
