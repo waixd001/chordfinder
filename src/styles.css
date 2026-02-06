@@ -39,7 +39,7 @@
 	}
 
 	.mode-toggle__button {
-		@apply rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink;
+		@apply rounded-2xl m-1 px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink;
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
