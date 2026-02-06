@@ -54,6 +54,7 @@ const getUiElements = () => ({
 	chordOutput: document.querySelector("#chordOutput"),
 	paper: document.querySelector("#paper"),
 	historyList: document.querySelector("#historyList"),
+	historyButtons: document.querySelector("#historyButtons"),
 	historyAdd: document.querySelector("#history-add"),
 	historyClear: document.querySelector("#history-clear"),
 	progressionAdd: document.querySelector("#progression-add"),
@@ -97,11 +98,25 @@ const renderEmptyState = (container, message) => {
 };
 
 const renderHistory = (ui, state) => {
+	// 渲染歷史按鈕
 	if (!state.history.length) {
+		ui.historyButtons.innerHTML = "";
 		renderEmptyState(ui.historyList, "還沒有記錄，先加入一個和弦吧。");
 		return;
 	}
 
+	// 更新按鈕容器
+	ui.historyButtons.innerHTML = "";
+	state.history.forEach((item, index) => {
+		const button = document.createElement("button");
+		button.className = "history-button";
+		button.type = "button";
+		button.dataset.index = String(index);
+		button.textContent = item;
+		ui.historyButtons.appendChild(button);
+	});
+
+	// 同時更新歷史列表（保持原有功能）
 	ui.historyList.innerHTML = "";
 	state.history.forEach((item, index) => {
 		const row = document.createElement("div");
@@ -224,11 +239,32 @@ const renderChord = (ui, state, chordResult) => {
 	}
 };
 
+// 定時器變數
+let inputTimeout = null;
+
 const updateChord = (ui, state) => {
 	const cleaned = sanitizeChordInput(ui.input.value);
 	const keyDefinition = getKeyDefinition(state.keyRoot, state.keyMode);
 	const chordResult = buildChordResult(cleaned, keyDefinition);
 	renderChord(ui, state, chordResult);
+
+	// 清除之前的定時器
+	if (inputTimeout) {
+		clearTimeout(inputTimeout);
+	}
+
+	// 如果輸入有效且不是空的，設置3秒後自動加入歷史
+	if (chordResult.status === "valid" && cleaned) {
+		inputTimeout = setTimeout(() => {
+			// 檢查是否已在歷史中，避免重複
+			if (!state.history.includes(chordResult.symbol)) {
+				state.history.unshift(chordResult.symbol);
+				state.history = state.history.slice(0, 20);
+				persistState(storage, state);
+				renderHistory(ui, state);
+			}
+		}, 3000);
+	}
 };
 
 const addHistoryItem = (storage, ui, state) => {
@@ -325,6 +361,15 @@ const init = () => {
 		renderProgression(ui, state);
 	});
 	ui.progressionSave.addEventListener("click", () => saveProgression(storage, ui, state));
+
+	// 為歷史按鈕添加點擊事件，點擊時填入輸入框
+	ui.historyButtons.addEventListener("click", (event) => {
+		const button = event.target.closest("button.history-button");
+		if (!button) return;
+		const chord = button.textContent;
+		ui.input.value = chord;
+		updateChord(ui, state);
+	});
 
 	bindRemoveHandler(ui.historyList, (index) => {
 		state.history.splice(index, 1);
