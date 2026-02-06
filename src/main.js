@@ -242,7 +242,7 @@ const renderChord = (ui, state, chordResult) => {
 // 定時器變數
 let inputTimeout = null;
 
-const updateChord = (ui, state) => {
+const updateChord = (ui, state, storage) => {
 	const cleaned = sanitizeChordInput(ui.input.value);
 	const keyDefinition = getKeyDefinition(state.keyRoot, state.keyMode);
 	const chordResult = buildChordResult(cleaned, keyDefinition);
@@ -319,13 +319,13 @@ const init = () => {
 	populateRootSelect(ui, state, state.keyMode);
 	renderHistory(ui, state);
 	renderProgression(ui, state);
-	updateChord(ui, state);
+	updateChord(ui, state, storage);
 
-	ui.input.addEventListener("input", () => updateChord(ui, state));
+	ui.input.addEventListener("input", () => updateChord(ui, state, storage));
 	ui.keyRoot.addEventListener("change", () => {
 		state.keyRoot = ui.keyRoot.value;
 		persistState(storage, state);
-		updateChord(ui, state);
+		updateChord(ui, state, storage);
 	});
 	ui.modeMajor.addEventListener("click", () => {
 		if (state.keyMode === "major") {
@@ -335,7 +335,7 @@ const init = () => {
 		setModeToggle(ui, state.keyMode);
 		populateRootSelect(ui, state, state.keyMode);
 		persistState(storage, state);
-		updateChord(ui, state);
+		updateChord(ui, state, storage);
 	});
 	ui.modeMinor.addEventListener("click", () => {
 		if (state.keyMode === "minor") {
@@ -345,7 +345,7 @@ const init = () => {
 		setModeToggle(ui, state.keyMode);
 		populateRootSelect(ui, state, state.keyMode);
 		persistState(storage, state);
-		updateChord(ui, state);
+		updateChord(ui, state, storage);
 	});
 	ui.historyAdd.addEventListener("click", () => addHistoryItem(storage, ui, state));
 	ui.historyClear.addEventListener("click", () => {
@@ -368,7 +368,7 @@ const init = () => {
 		if (!button) return;
 		const chord = button.textContent;
 		ui.input.value = chord;
-		updateChord(ui, state);
+		updateChord(ui, state, storage);
 	});
 
 	bindRemoveHandler(ui.historyList, (index) => {
