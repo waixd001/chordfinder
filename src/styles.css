@@ -130,4 +130,8 @@
 	.history-scroll-container::-webkit-scrollbar {
 		display: none; /* Safari and Chrome */
 	}
+	#historyButtons {
+		@apply flex gap-2 flex-nowrap;
+		min-width: min-content;
+	}
 }
