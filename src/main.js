@@ -53,7 +53,6 @@ const getUiElements = () => ({
 	modeMinor: document.querySelector("#mode-minor"),
 	chordOutput: document.querySelector("#chordOutput"),
 	paper: document.querySelector("#paper"),
-	historyList: document.querySelector("#historyList"),
 	historyButtons: document.querySelector("#historyButtons"),
 	historyAdd: document.querySelector("#history-add"),
 	historyClear: document.querySelector("#history-clear"),
@@ -101,7 +100,6 @@ const renderHistory = (ui, state) => {
 	// 渲染歷史按鈕
 	if (!state.history.length) {
 		ui.historyButtons.innerHTML = "";
-		renderEmptyState(ui.historyList, "還沒有記錄，先加入一個和弦吧。");
 		return;
 	}
 
@@ -114,26 +112,6 @@ const renderHistory = (ui, state) => {
 		button.dataset.index = String(index);
 		button.textContent = item;
 		ui.historyButtons.appendChild(button);
-	});
-
-	// 同時更新歷史列表（保持原有功能）
-	ui.historyList.innerHTML = "";
-	state.history.forEach((item, index) => {
-		const row = document.createElement("div");
-		row.className = "list-item";
-
-		const text = document.createElement("span");
-		text.textContent = item;
-
-		const remove = document.createElement("button");
-		remove.className = "icon-button";
-		remove.type = "button";
-		remove.dataset.index = String(index);
-		remove.textContent = "移除";
-
-		row.appendChild(text);
-		row.appendChild(remove);
-		ui.historyList.appendChild(row);
 	});
 };
 
@@ -369,12 +347,6 @@ const init = () => {
 		const chord = button.textContent;
 		ui.input.value = chord;
 		updateChord(ui, state, storage);
-	});
-
-	bindRemoveHandler(ui.historyList, (index) => {
-		state.history.splice(index, 1);
-		persistState(storage, state);
-		renderHistory(ui, state);
 	});
 
 	bindRemoveHandler(ui.progressionHistory, (index) => {

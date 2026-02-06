@@ -42,8 +42,17 @@
 						<span class="input-glow"></span>
 					</div>
 					<p class="text-xs text-ink/45">輸入時會自動更新結果，不需要按下 Enter。</p>
-					<!-- 歷史按鈕容器 -->
-					<div id="historyButtons" class="flex flex-wrap gap-2 mt-4"></div>
+					<!-- 歷史按鈕區域 -->
+					<div class="flex items-center justify-between mt-4">
+						<div class="flex items-center gap-3">
+							<p class="text-sm font-medium text-ink/70">History</p>
+							<div id="historyButtons" class="flex flex-wrap gap-2"></div>
+						</div>
+						<div class="flex gap-2">
+							<button id="history-add" class="pill-button">加入</button>
+							<button id="history-clear" class="pill-button pill-button--ghost">清空</button>
+						</div>
+					</div>
 				</div>
 
 				<div class="space-y-3">
@@ -71,36 +80,23 @@
 					<div id="paper" class="mt-6"></div>
 				</div>
 
-				<div class="grid gap-6 lg:grid-cols-2">
-					<div class="result-card space-y-4">
-						<div class="flex items-center justify-between gap-4">
-							<p class="text-sm uppercase tracking-[0.2em] text-ink/45">History</p>
-							<div class="flex gap-2">
-								<button id="history-add" class="pill-button">加入</button>
-								<button id="history-clear" class="pill-button pill-button--ghost">清空</button>
-							</div>
+				<div class="result-card space-y-5">
+					<div class="flex items-center justify-between gap-4">
+						<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Progression</p>
+						<div class="flex gap-2">
+							<button id="progression-add" class="pill-button">加入</button>
+							<button id="progression-clear" class="pill-button pill-button--ghost">清空</button>
 						</div>
-						<div id="historyList" class="list-stack"></div>
 					</div>
-
-					<div class="result-card space-y-5">
-						<div class="flex items-center justify-between gap-4">
-							<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Progression</p>
-							<div class="flex gap-2">
-								<button id="progression-add" class="pill-button">加入</button>
-								<button id="progression-clear" class="pill-button pill-button--ghost">清空</button>
-							</div>
-						</div>
-						<div>
-							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Current</p>
-							<div id="progressionCurrent" class="chip-stack mt-2"></div>
-						</div>
-						<div class="flex items-center justify-between gap-4">
-							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Saved</p>
-							<button id="progression-save" class="pill-button pill-button--soft">儲存進程</button>
-						</div>
-						<div id="progressionHistory" class="list-stack"></div>
+					<div>
+						<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Current</p>
+						<div id="progressionCurrent" class="chip-stack mt-2"></div>
 					</div>
+					<div class="flex items-center justify-between gap-4">
+						<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Saved</p>
+						<button id="progression-save" class="pill-button pill-button--soft">儲存進程</button>
+					</div>
+					<div id="progressionHistory" class="list-stack"></div>
 				</div>
 			</section>
 		</main>
