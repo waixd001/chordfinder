@@ -126,6 +126,7 @@
 		@apply overflow-x-auto flex-1 min-w-0;
 		scrollbar-width: none; /* Firefox */
 		-ms-overflow-style: none; /* Internet Explorer 10+ */
+		-webkit-overflow-scrolling: touch; /* 改善 iOS 滾動 */
 	}
 	.history-scroll-container::-webkit-scrollbar {
 		display: none; /* Safari and Chrome */
