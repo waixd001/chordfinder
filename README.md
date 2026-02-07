@@ -29,7 +29,6 @@
 
 - **網頁模式**：執行 `bun run dev` 啟動開發伺服器（`localhost:5173`）
 - **桌面應用**：執行 `bun run t:dev` 啟動 Tauri 桌面應用
-- **測試**：在瀏覽器中開啟 `tests/index.html` 運行和弦工具測試
 
 ---
 
@@ -37,10 +36,10 @@
 
 ### 技術架構
 
-**前端**：Vanilla JavaScript + Tailwind CSS v4
-**桌面框架**：Tauri（Rust + Web 技術）
-**音樂理論引擎**：Tonal.js 用於和弦分析
-**樂譜渲染**：abcjs 用於 ABC notation 顯示
+**前端**：Vanilla JavaScript + Tailwind CSS v4  
+**桌面框架**：Tauri（Rust + Web 技術）  
+**音樂理論引擎**：Tonal.js 用於和弦分析  
+**樂譜渲染**：abcjs 用於 ABC notation 顯示  
 **UI 互動**：SortableJS 實現拖放功能
 
 ### 代碼結構
