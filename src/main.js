@@ -10,6 +10,8 @@ import {
 	spellNotesWithOctaveInKey,
 	toAbcKey,
 } from "./chord-utils.js";
+import { analyzeChordFunction } from "./chord-function.js";
+import { initSortable } from "./drag-utils.js";
 
 const STORAGE_KEYS = {
 	HISTORY: "chordfinder.history",
@@ -56,11 +58,11 @@ const getUiElements = () => ({
 	historyButtons: document.querySelector("#historyButtons"),
 	historyAdd: document.querySelector("#history-add"),
 	historyClear: document.querySelector("#history-clear"),
-	progressionAdd: document.querySelector("#progression-add"),
-	progressionClear: document.querySelector("#progression-clear"),
-	progressionSave: document.querySelector("#progression-save"),
-	progressionCurrent: document.querySelector("#progressionCurrent"),
-	progressionHistory: document.querySelector("#progressionHistory"),
+	progressionAdd: document.querySelectorAll("#progression-add, #progression-add-modal"),
+	progressionClear: document.querySelectorAll("#progression-clear, #progression-clear-modal"),
+	progressionSave: document.querySelectorAll("#progression-save, #progression-save-modal"),
+	progressionCurrent: document.querySelectorAll("#progressionCurrent"),
+	progressionHistory: document.querySelectorAll("#progressionHistory"),
 });
 
 const setModeToggle = (ui, mode) => {
@@ -116,40 +118,111 @@ const renderHistory = (ui, state) => {
 };
 
 const renderProgression = (ui, state) => {
-	if (!state.progression.length) {
-		renderEmptyState(ui.progressionCurrent, "進程尚未開始。");
-	} else {
-		ui.progressionCurrent.innerHTML = "";
-		state.progression.forEach((chord) => {
-			const chip = document.createElement("span");
-			chip.className = "chip";
-			chip.textContent = chord;
-			ui.progressionCurrent.appendChild(chip);
+	// Get current key definition for chord function analysis
+	const keyDefinition = getKeyDefinition(state.keyRoot, state.keyMode);
+	
+	ui.progressionCurrent.forEach((container) => {
+		if (!state.progression.length) {
+			renderEmptyState(container, "進程尚未開始。");
+		} else {
+			container.innerHTML = "";
+			state.progression.forEach((chord, index) => {
+				const chip = document.createElement("span");
+				chip.className = "chip";
+				chip.dataset.index = String(index);
+				
+				// Analyze chord function
+				const chordFunction = analyzeChordFunction(chord, keyDefinition);
+				
+				// Add function class for color coding
+				if (chordFunction && chordFunction.color) {
+					chip.classList.add(`chip--${chordFunction.color}`);
+				}
+				
+				const handle = document.createElement("span");
+				handle.className = "drag-handle";
+				handle.innerHTML = `
+					<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="9" cy="5" r="1"></circle>
+						<circle cx="9" cy="12" r="1"></circle>
+						<circle cx="9" cy="19" r="1"></circle>
+						<circle cx="15" cy="5" r="1"></circle>
+						<circle cx="15" cy="12" r="1"></circle>
+						<circle cx="15" cy="19" r="1"></circle>
+					</svg>
+				`;
+				
+				// Create container for chord text and roman numeral
+				const contentContainer = document.createElement("span");
+				contentContainer.className = "chip-content";
+				
+				// Add roman numeral badge if available
+				if (chordFunction && chordFunction.roman) {
+					const romanBadge = document.createElement("span");
+					romanBadge.className = "chip-roman";
+					romanBadge.textContent = chordFunction.roman;
+					romanBadge.title = chordFunction.function;
+					contentContainer.appendChild(romanBadge);
+				}
+				
+				const text = document.createElement("span");
+				text.className = "chip-text";
+				text.textContent = chord;
+				contentContainer.appendChild(text);
+				
+				chip.appendChild(handle);
+				chip.appendChild(contentContainer);
+				container.appendChild(chip);
+			});
+		}
+	});
+
+	ui.progressionHistory.forEach((container) => {
+		if (!state.progressionHistory.length) {
+			renderEmptyState(container, "還沒有保存的進程。");
+			return;
+		}
+
+		container.innerHTML = "";
+		state.progressionHistory.forEach((progression, index) => {
+			const row = document.createElement("div");
+			row.className = "list-item list-item--stack";
+			row.dataset.index = String(index);
+
+			const handle = document.createElement("span");
+			handle.className = "drag-handle drag-handle--list";
+			handle.innerHTML = `
+				<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="8" y1="9" x2="16" y2="9"></line>
+					<line x1="8" y1="15" x2="16" y2="15"></line>
+				</svg>
+			`;
+
+			// Create progressions with chord function badges
+			const progressionWithFunctions = progression.map(chord => {
+				const chordFunction = analyzeChordFunction(chord, keyDefinition);
+				if (chordFunction && chordFunction.roman) {
+					// Return chord with roman numeral in parentheses
+					return `${chord} (${chordFunction.roman})`;
+				}
+				return chord;
+			});
+			
+			const text = document.createElement("span");
+			text.className = "list-item-text";
+			text.textContent = progressionWithFunctions.join(" → ");
+
+			const remove = document.createElement("button");
+			remove.className = "icon-button";
+			remove.type = "button";
+			remove.dataset.index = String(index);
+			remove.textContent = "移除";
+
+			row.appendChild(handle);
+			row.appendChild(text);
+			row.appendChild(remove);
+			container.appendChild(row);
 		});
-	}
-
-	if (!state.progressionHistory.length) {
-		renderEmptyState(ui.progressionHistory, "還沒有保存的進程。");
-		return;
-	}
-
-	ui.progressionHistory.innerHTML = "";
-	state.progressionHistory.forEach((progression, index) => {
-		const row = document.createElement("div");
-		row.className = "list-item list-item--stack";
-
-		const text = document.createElement("span");
-		text.textContent = progression.join(" → ");
-
-		const remove = document.createElement("button");
-		remove.className = "icon-button";
-		remove.type = "button";
-		remove.dataset.index = String(index);
-		remove.textContent = "移除";
-
-		row.appendChild(text);
-		row.appendChild(remove);
-		ui.progressionHistory.appendChild(row);
 	});
 };
 
@@ -177,11 +250,14 @@ const buildChordResult = (cleaned, keyDefinition) => {
 		keyDefinition
 	);
 
+	const chordFunction = analyzeChordFunction(cleaned, keyDefinition);
+
 	return {
 		status: "valid",
 		symbol: result.symbol,
 		notes: spelledNotes,
 		notesWithOctave: spelledWithOctave,
+		function: chordFunction,
 	};
 };
 
@@ -204,9 +280,34 @@ const renderChord = (ui, state, chordResult) => {
 		symbol: chordResult.symbol,
 		notes: chordResult.notes,
 		notesWithOctave: chordResult.notesWithOctave,
+		function: chordResult.function,
 	};
 
-	ui.chordOutput.textContent = `${chordResult.symbol} 和弦的組成音是 ${chordResult.notes.join(" ")}`;
+	// Build output text with chord function analysis
+	let outputText = `${chordResult.symbol} 和弦的組成音是 ${chordResult.notes.join(" ")}`;
+	
+	if (chordResult.function) {
+		const roman = chordResult.function.roman;
+		const func = chordResult.function.function;
+		const color = chordResult.function.color;
+		
+		// Add function analysis
+		outputText += `\n調性分析: ${roman} (${func})`;
+		
+		// Add color coding hint
+		let colorHint = "";
+		if (color === "green") colorHint = "綠色 - 主功能和弦";
+		else if (color === "blue") colorHint = "藍色 - 下屬功能和弦";
+		else if (color === "red") colorHint = "紅色 - 屬功能和弦";
+		
+		if (colorHint) {
+			outputText += `\n功能色彩: ${colorHint}`;
+		}
+	} else if (chordResult.status === "valid") {
+		outputText += "\n調性分析: 非調內和弦 (N/A)";
+	}
+
+	ui.chordOutput.textContent = outputText;
 	ui.paper.innerHTML = "";
 
 	if (chordResult.notesWithOctave.length) {
@@ -299,11 +400,42 @@ const init = () => {
 	renderProgression(ui, state);
 	updateChord(ui, state, storage);
 
+	ui.progressionCurrent.forEach((container) => {
+		initSortable(container, {
+			onEnd: (evt) => {
+				const { oldIndex, newIndex } = evt;
+				if (oldIndex === newIndex) return;
+
+				const movedItem = state.progression.splice(oldIndex, 1)[0];
+				state.progression.splice(newIndex, 0, movedItem);
+
+				persistState(storage, state);
+				renderProgression(ui, state);
+			},
+		});
+	});
+
+	ui.progressionHistory.forEach((container) => {
+		initSortable(container, {
+			onEnd: (evt) => {
+				const { oldIndex, newIndex } = evt;
+				if (oldIndex === newIndex) return;
+
+				const movedItem = state.progressionHistory.splice(oldIndex, 1)[0];
+				state.progressionHistory.splice(newIndex, 0, movedItem);
+
+				persistState(storage, state);
+				renderProgression(ui, state);
+			},
+		});
+	});
+
 	ui.input.addEventListener("input", () => updateChord(ui, state, storage));
 	ui.keyRoot.addEventListener("change", () => {
 		state.keyRoot = ui.keyRoot.value;
 		persistState(storage, state);
 		updateChord(ui, state, storage);
+		renderProgression(ui, state);
 	});
 	ui.modeMajor.addEventListener("click", () => {
 		if (state.keyMode === "major") {
@@ -314,6 +446,7 @@ const init = () => {
 		populateRootSelect(ui, state, state.keyMode);
 		persistState(storage, state);
 		updateChord(ui, state, storage);
+		renderProgression(ui, state);
 	});
 	ui.modeMinor.addEventListener("click", () => {
 		if (state.keyMode === "minor") {
@@ -324,6 +457,7 @@ const init = () => {
 		populateRootSelect(ui, state, state.keyMode);
 		persistState(storage, state);
 		updateChord(ui, state, storage);
+		renderProgression(ui, state);
 	});
 	ui.historyAdd.addEventListener("click", () => addHistoryItem(storage, ui, state));
 	ui.historyClear.addEventListener("click", () => {
@@ -332,13 +466,19 @@ const init = () => {
 		renderHistory(ui, state);
 	});
 
-	ui.progressionAdd.addEventListener("click", () => addProgressionItem(storage, ui, state));
-	ui.progressionClear.addEventListener("click", () => {
-		state.progression = [];
-		persistState(storage, state);
-		renderProgression(ui, state);
-	});
-	ui.progressionSave.addEventListener("click", () => saveProgression(storage, ui, state));
+	ui.progressionAdd.forEach((btn) =>
+		btn.addEventListener("click", () => addProgressionItem(storage, ui, state))
+	);
+	ui.progressionClear.forEach((btn) =>
+		btn.addEventListener("click", () => {
+			state.progression = [];
+			persistState(storage, state);
+			renderProgression(ui, state);
+		})
+	);
+	ui.progressionSave.forEach((btn) =>
+		btn.addEventListener("click", () => saveProgression(storage, ui, state))
+	);
 
 	// 為歷史按鈕添加點擊事件，點擊時填入輸入框
 	ui.historyButtons.addEventListener("click", (event) => {
@@ -349,10 +489,12 @@ const init = () => {
 		updateChord(ui, state, storage);
 	});
 
-	bindRemoveHandler(ui.progressionHistory, (index) => {
-		state.progressionHistory.splice(index, 1);
-		persistState(storage, state);
-		renderProgression(ui, state);
+	ui.progressionHistory.forEach((container) => {
+		bindRemoveHandler(container, (index) => {
+			state.progressionHistory.splice(index, 1);
+			persistState(storage, state);
+			renderProgression(ui, state);
+		});
 	});
 };
 

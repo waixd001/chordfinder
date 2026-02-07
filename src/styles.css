@@ -99,8 +99,61 @@
 	}
 
 	.chip {
-		@apply rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-ink/70;
+		@apply relative flex items-center gap-2 rounded-full bg-ink/10 pl-2 pr-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-ink/70 transition-all duration-200;
 	}
+
+	.chip--green {
+		@apply bg-green-500/15 ring-1 ring-green-500/30 text-green-700/90;
+	}
+
+	.chip--blue {
+		@apply bg-blue-500/15 ring-1 ring-blue-500/30 text-blue-700/90;
+	}
+
+	.chip--red {
+		@apply bg-red-500/15 ring-1 ring-red-500/30 text-red-700/90;
+	}
+
+	.chip-content {
+		@apply flex items-center gap-1.5;
+	}
+
+	.chip-roman {
+		@apply inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-white/90 text-ink/90 border border-ink/10 shadow-sm;
+	}
+
+	.chip-text {
+		@apply tracking-[0.2em];
+	}
+
+	.drag-handle {
+		@apply cursor-grab active:cursor-grabbing flex items-center justify-center w-4 h-4 text-ink/30 hover:text-ink/60 transition-colors;
+	}
+
+	.drag-handle--list {
+		@apply absolute right-4 top-4 w-6 h-6 text-ink/20 hover:text-ink/40;
+	}
+
+	.list-item--stack {
+		@apply flex-col items-start relative;
+	}
+
+	.list-item-text {
+		@apply pr-8;
+	}
+
+	.drag-ghost {
+		@apply opacity-40 scale-95 grayscale;
+	}
+
+	.drag-chosen {
+		@apply shadow-lg ring-2 ring-ink/10 bg-white/90;
+	}
+
+	.drag-item {
+		@apply opacity-100;
+	}
+
 
 	.empty-state {
 		@apply rounded-2xl border border-dashed border-ink/15 bg-white/60 px-4 py-4 text-xs uppercase tracking-[0.2em] text-ink/40;
@@ -138,5 +191,119 @@
 	#historyButtons {
 		@apply flex gap-2 flex-nowrap;
 		min-width: min-content;
+	}
+
+	/* Modal Styles */
+	:root {
+		--modal-width: 400px;
+		--modal-max-height: 500px;
+		--modal-top: 50px;
+		--modal-right: 20px;
+	}
+
+	.modal-backdrop {
+		@apply fixed inset-0 z-[90] bg-ink/10 backdrop-blur-[2px] transition-opacity duration-300;
+	}
+
+	.modal-backdrop.hidden {
+		@apply pointer-events-none opacity-0;
+	}
+
+	.modal-container {
+		@apply fixed z-[100] flex flex-col overflow-hidden rounded-[24px] border border-white/60 bg-white/80 shadow-[var(--shadow-soft)] backdrop-blur-2xl transition-all duration-300 ease-out;
+		width: var(--modal-width);
+		max-height: var(--modal-max-height);
+		top: var(--modal-top);
+		right: var(--modal-right);
+	}
+
+	.modal-container.hidden {
+		@apply pointer-events-none translate-y-4 opacity-0 scale-95;
+	}
+
+	.modal-header {
+		@apply flex cursor-default items-center justify-between border-b border-white/40 bg-white/30 px-5 py-3 backdrop-blur-md;
+	}
+
+	.modal-content {
+		@apply flex-1 overflow-y-auto p-6;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(27, 29, 32, 0.1) transparent;
+	}
+
+	.modal-content::-webkit-scrollbar {
+		width: 4px;
+	}
+
+	.modal-content::-webkit-scrollbar-thumb {
+		@apply rounded-full bg-ink/10;
+	}
+
+	.modal-control-btn {
+		@apply flex h-7 w-7 items-center justify-center rounded-full text-lg font-medium text-ink/40 transition hover:bg-ink/5 hover:text-ink active:scale-90;
+	}
+
+	.modal-container.dragging {
+		@apply shadow-[0_20px_60px_rgba(15,23,42,0.2)] ring-2 ring-ink/10;
+		cursor: grabbing;
+	}
+
+	.modal-container--minimized {
+		@apply h-auto;
+		min-height: 44px;
+	}
+
+	.modal-container--minimized .modal-content {
+		@apply hidden;
+	}
+
+	@media (max-width: 640px) {
+		.modal-container {
+			@apply inset-x-4 bottom-4 top-auto w-auto max-h-[70vh];
+			--modal-right: 1rem;
+			touch-action: none;
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			user-select: none;
+		}
+
+		.modal-container.dragging {
+			@apply transition-none;
+		}
+
+		.modal-header {
+			@apply px-4 py-3;
+			touch-action: none;
+			min-height: 44px; /* Minimum touch target size */
+		}
+
+		.drag-handle {
+			@apply touch-manipulation w-5 h-5;
+			min-width: 44px;
+			min-height: 44px;
+			padding: 12px; /* Larger touch target */
+		}
+
+		.modal-control-btn {
+			@apply h-8 w-8 text-base;
+			min-width: 44px;
+			min-height: 44px;
+		}
+
+		.modal-content {
+			@apply p-4;
+		}
+
+		.chip-stack {
+			@apply gap-1.5;
+		}
+
+		.chip {
+			@apply text-[10px] px-2 py-1;
+		}
+
+		.chip-roman {
+			@apply w-4 h-4 text-[9px];
+		}
 	}
 }

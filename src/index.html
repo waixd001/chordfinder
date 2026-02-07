@@ -57,6 +57,7 @@
 							</div>
 						</div>
 						<div class="flex gap-2 shrink-0">
+							<button id="modal-open-progression" class="pill-button pill-button--soft">Open Progression</button>
 							<button id="history-add" class="pill-button">加入</button>
 							<button id="history-clear" class="pill-button pill-button--ghost">清空</button>
 						</div>
@@ -109,6 +110,259 @@
 			</section>
 		</main>
 
+		<!-- Progression Modal -->
+		<div id="modal-backdrop" class="modal-backdrop hidden"></div>
+		<div id="progression-modal" class="modal-container hidden">
+			<div class="modal-header" id="modal-drag-handle">
+				<div class="flex items-center gap-3">
+					<div class="drag-handle">
+						<svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor">
+							<circle cx="2" cy="2" r="1.5"/>
+							<circle cx="6" cy="2" r="1.5"/>
+							<circle cx="10" cy="2" r="1.5"/>
+							<circle cx="2" cy="6" r="1.5"/>
+							<circle cx="6" cy="6" r="1.5"/>
+							<circle cx="10" cy="6" r="1.5"/>
+							<circle cx="2" cy="10" r="1.5"/>
+							<circle cx="6" cy="10" r="1.5"/>
+							<circle cx="10" cy="10" r="1.5"/>
+						</svg>
+					</div>
+					<span class="text-xs uppercase tracking-[0.2em] font-semibold text-ink/60">Progression</span>
+				</div>
+				<div class="flex items-center gap-2">
+					<button id="modal-minimize" class="modal-control-btn" title="Minimize">−</button>
+					<button id="modal-close" class="modal-control-btn" title="Close">×</button>
+				</div>
+			</div>
+			<div class="modal-content">
+				<div class="space-y-5">
+					<div class="flex items-center justify-between gap-4">
+						<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Progression</p>
+						<div class="flex gap-2">
+							<button id="progression-add-modal" class="pill-button">加入</button>
+							<button id="progression-clear-modal" class="pill-button pill-button--ghost">清空</button>
+						</div>
+					</div>
+					<div>
+						<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Current</p>
+						<div id="progressionCurrent" class="chip-stack mt-2"></div>
+					</div>
+					<div class="flex items-center justify-between gap-4">
+						<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Saved</p>
+						<button id="progression-save-modal" class="pill-button pill-button--soft">儲存進程</button>
+					</div>
+					<div id="progressionHistory" class="list-stack"></div>
+				</div>
+			</div>
+		</div>
+
 		<script type="module" src="/main.js"></script>
+		<script>
+			// Modal State & Persistence
+			const MODAL_STORAGE_KEY = 'chordfinder.modalPosition';
+			const modal = document.getElementById('progression-modal');
+			const backdrop = document.getElementById('modal-backdrop');
+			const openBtn = document.getElementById('modal-open-progression');
+			const closeBtn = document.getElementById('modal-close');
+			const minimizeBtn = document.getElementById('modal-minimize');
+			const dragHandle = document.getElementById('modal-drag-handle');
+			const modalContent = modal.querySelector('.modal-content');
+
+			let modalState = {
+				x: window.innerWidth / 2 - 200,
+				y: 100,
+				minimized: false,
+				visible: false
+			};
+
+			// Load saved state
+			const savedState = localStorage.getItem(MODAL_STORAGE_KEY);
+			if (savedState) {
+				try {
+					const parsed = JSON.parse(savedState);
+					modalState = { ...modalState, ...parsed };
+					// Ensure modal is within viewport
+					modalState.x = Math.max(0, Math.min(modalState.x, window.innerWidth - 400));
+					modalState.y = Math.max(0, Math.min(modalState.y, window.innerHeight - 100));
+				} catch (e) {
+					console.error('Failed to parse modal state', e);
+				}
+			}
+
+			const constrainModalToViewport = () => {
+				if (!modal) return;
+				
+				const modalWidth = modal.offsetWidth;
+				const modalHeight = modalState.minimized ? modal.offsetHeight : modal.offsetHeight;
+				
+				// If modal is minimized, use header height only
+				const effectiveHeight = modalState.minimized ? modal.querySelector('.modal-header').offsetHeight : modalHeight;
+				
+				// Ensure modal stays within viewport
+				modalState.x = Math.max(0, Math.min(modalState.x, window.innerWidth - modalWidth));
+				modalState.y = Math.max(0, Math.min(modalState.y, window.innerHeight - effectiveHeight));
+			};
+
+			const applyModalState = () => {
+				constrainModalToViewport();
+				modal.style.transform = `translate(${modalState.x}px, ${modalState.y}px)`;
+				modal.classList.toggle('hidden', !modalState.visible);
+				backdrop.classList.toggle('hidden', !modalState.visible);
+				
+				if (modalState.minimized) {
+					modal.classList.add('modal-container--minimized');
+					modalContent.classList.add('hidden');
+					minimizeBtn.textContent = '+';
+				} else {
+					modal.classList.remove('modal-container--minimized');
+					modalContent.classList.remove('hidden');
+					minimizeBtn.textContent = '−';
+				}
+			};
+
+			const saveModalState = () => {
+				localStorage.setItem(MODAL_STORAGE_KEY, JSON.stringify(modalState));
+			};
+
+			// Modal Toggle Logic
+			const openModal = () => {
+				modalState.visible = true;
+				applyModalState();
+				saveModalState();
+				// Trigger custom event for main.js to sync UI
+				window.dispatchEvent(new CustomEvent('modal-opened'));
+			};
+
+			const closeModal = () => {
+				modalState.visible = false;
+				applyModalState();
+				saveModalState();
+			};
+
+			const toggleMinimize = () => {
+				modalState.minimized = !modalState.minimized;
+				applyModalState();
+				saveModalState();
+			};
+
+			openBtn?.addEventListener('click', openModal);
+			closeBtn?.addEventListener('click', closeModal);
+			backdrop?.addEventListener('click', closeModal);
+			minimizeBtn?.addEventListener('click', toggleMinimize);
+
+			// ESC key to close
+			window.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape' && modalState.visible) {
+					closeModal();
+				}
+			});
+
+			// Drag Logic
+			let isDragging = false;
+			let startX, startY;
+			let initialModalX, initialModalY;
+
+			const startDrag = (clientX, clientY) => {
+				isDragging = true;
+				startX = clientX;
+				startY = clientY;
+				initialModalX = modalState.x;
+				initialModalY = modalState.y;
+				
+				modal.classList.add('dragging');
+				document.body.style.userSelect = 'none';
+				document.body.style.touchAction = 'none';
+			};
+
+			const handleMove = (clientX, clientY) => {
+				if (!isDragging) return;
+
+				const dx = clientX - startX;
+				const dy = clientY - startY;
+
+				let newX = initialModalX + dx;
+				let newY = initialModalY + dy;
+
+				// Boundary checks
+				const modalWidth = modal.offsetWidth;
+				const modalHeight = modal.offsetHeight;
+				
+				newX = Math.max(0, Math.min(newX, window.innerWidth - modalWidth));
+				newY = Math.max(0, Math.min(newY, window.innerHeight - modalHeight));
+
+				modalState.x = newX;
+				modalState.y = newY;
+				
+				modal.style.transform = `translate(${newX}px, ${newY}px)`;
+			};
+
+			const endDrag = () => {
+				if (isDragging) {
+					isDragging = false;
+					modal.classList.remove('dragging');
+					document.body.style.userSelect = '';
+					document.body.style.touchAction = '';
+					saveModalState();
+				}
+			};
+
+			// Mouse events
+			dragHandle?.addEventListener('mousedown', (e) => {
+				if (e.target.closest('.modal-control-btn')) return;
+				e.preventDefault();
+				startDrag(e.clientX, e.clientY);
+			});
+
+			window.addEventListener('mousemove', (e) => {
+				e.preventDefault();
+				handleMove(e.clientX, e.clientY);
+			});
+
+			window.addEventListener('mouseup', (e) => {
+				e.preventDefault();
+				endDrag();
+			});
+
+			// Touch events for mobile
+			dragHandle?.addEventListener('touchstart', (e) => {
+				if (e.target.closest('.modal-control-btn')) return;
+				e.preventDefault();
+				const touch = e.touches[0];
+				startDrag(touch.clientX, touch.clientY);
+			}, { passive: false });
+
+			window.addEventListener('touchmove', (e) => {
+				if (!isDragging) return;
+				e.preventDefault();
+				const touch = e.touches[0];
+				handleMove(touch.clientX, touch.clientY);
+			}, { passive: false });
+
+			window.addEventListener('touchend', (e) => {
+				e.preventDefault();
+				endDrag();
+			}, { passive: false });
+
+			// Prevent scrolling while dragging
+			dragHandle?.addEventListener('touchstart', (e) => {
+				if (isDragging) {
+					e.preventDefault();
+				}
+			}, { passive: false });
+
+			// Window resize handling
+			let resizeTimeout;
+			window.addEventListener('resize', () => {
+				clearTimeout(resizeTimeout);
+				resizeTimeout = setTimeout(() => {
+					constrainModalToViewport();
+					applyModalState();
+				}, 250); // Debounce resize events
+			});
+
+			// Initial apply
+			applyModalState();
+		</script>
 	</body>
 </html>
