@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Chordfinder** - A Tauri + Vite + Vanilla JS application for chord lookup and progression management. It's a music theory tool that parses chord symbols, displays their notes, renders sheet music via ABC notation, and analyzes harmonic functions. Built by NiceChord 好和弦 with modifications by arWai.
+**Harmonia** - A Tauri + Vite + Vanilla JS application for chord lookup and progression management. It's a music theory tool that parses chord symbols, displays their notes, renders sheet music via ABC notation, and analyzes harmonic functions. Built by NiceChord 好和弦 with modifications by arWai.
 
 ---
 
@@ -11,7 +11,7 @@
 ### Directory Layout
 
 ```
-chordfinder/
+harmonia/
 ├── src/                    # Frontend source (Vite root)
 │   ├── index.html          # Main HTML with embedded modal logic
 │   ├── main.js             # Application entry point & state management
@@ -208,7 +208,7 @@ const createState = (storage) => ({
 
 ### Tauri Configuration
 
-- **App ID**: `com.wai.chord-lookup`
+- **App ID**: `com.wai.harmonia`
 - **Window Size**: 800×600
 - **Build Command**: Uses `bun run build`
 - **Frontend Directory**: `../dist`

@@ -1,8 +1,8 @@
 {
 	"$schema": "https://schema.tauri.app/config/2",
-	"productName": "chord-lookup",
+	"productName": "harmonia",
 	"version": "0.1.0",
-	"identifier": "com.wai.chord-lookup",
+	"identifier": "com.wai.harmonia",
 	"build": {
 		"beforeDevCommand": "bun run dev",
 		"beforeBuildCommand": "bun run build",
@@ -13,7 +13,7 @@
 		"withGlobalTauri": true,
 		"windows": [
 			{
-				"title": "Chord-Lookup",
+				"title": "Harmonia",
 				"width": 800,
 				"height": 600
 			}

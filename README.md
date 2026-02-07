@@ -1,4 +1,4 @@
-# Chord-Lookup - 不囉唆的和弦代號查詢器
+# Harmonia
 
 > Fork from: [不囉唆的和弦代號查詢器 by NiceChord 好和弦](https://github.com/wiwikuan/chordfinder)
 > Modified by: arWai
@@ -7,7 +7,7 @@
 
 ## 🎵 功能和用法
 
-**Chord-Lookup** 是一個桌面音樂理論工具，幫助音樂愛好者快速查找和理解和弦結構。
+**Harmonia** 是一個網頁/桌面音樂理論工具，幫助音樂愛好者快速查找和理解和弦結構。
 
 ### 核心功能
 
@@ -45,7 +45,7 @@
 ### 代碼結構
 
 ```
-chordfinder/
+harmonia/
 ├── src/                    # 前端原始碼
 │   ├── main.js           # 應用入口點與狀態管理
 │   ├── chord-utils.js    # 和弦處理工具（音樂理論）

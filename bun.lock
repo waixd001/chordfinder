@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "chord-lookup",
+      "name": "harmonia",
       "dependencies": {
         "@tailwindcss/vite": "^4.1.18",
         "abcjs": "^6.6.1",

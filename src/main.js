@@ -14,11 +14,11 @@ import { analyzeChordFunction } from "./chord-function.js";
 import { initSortable } from "./drag-utils.js";
 
 const STORAGE_KEYS = {
-	HISTORY: "chordfinder.history",
-	PROGRESSION: "chordfinder.progression",
-	PROGRESSION_HISTORY: "chordfinder.progressionHistory",
-	KEY_ROOT: "chordfinder.keyRoot",
-	KEY_MODE: "chordfinder.keyMode",
+	HISTORY: "harmonia.history",
+	PROGRESSION: "harmonia.progression",
+	PROGRESSION_HISTORY: "harmonia.progressionHistory",
+	KEY_ROOT: "harmonia.keyRoot",
+	KEY_MODE: "harmonia.keyMode",
 };
 
 const createStorage = (backend) => ({
@@ -120,7 +120,7 @@ const renderHistory = (ui, state) => {
 const renderProgression = (ui, state) => {
 	// Get current key definition for chord function analysis
 	const keyDefinition = getKeyDefinition(state.keyRoot, state.keyMode);
-	
+
 	ui.progressionCurrent.forEach((container) => {
 		if (!state.progression.length) {
 			renderEmptyState(container, "進程尚未開始。");
@@ -130,15 +130,15 @@ const renderProgression = (ui, state) => {
 				const chip = document.createElement("span");
 				chip.className = "chip";
 				chip.dataset.index = String(index);
-				
+
 				// Analyze chord function
 				const chordFunction = analyzeChordFunction(chord, keyDefinition);
-				
+
 				// Add function class for color coding
 				if (chordFunction && chordFunction.color) {
 					chip.classList.add(`chip--${chordFunction.color}`);
 				}
-				
+
 				const handle = document.createElement("span");
 				handle.className = "drag-handle";
 				handle.innerHTML = `
@@ -151,11 +151,11 @@ const renderProgression = (ui, state) => {
 						<circle cx="15" cy="19" r="1"></circle>
 					</svg>
 				`;
-				
+
 				// Create container for chord text and roman numeral
 				const contentContainer = document.createElement("span");
 				contentContainer.className = "chip-content";
-				
+
 				// Add roman numeral badge if available
 				if (chordFunction && chordFunction.roman) {
 					const romanBadge = document.createElement("span");
@@ -164,12 +164,12 @@ const renderProgression = (ui, state) => {
 					romanBadge.title = chordFunction.function;
 					contentContainer.appendChild(romanBadge);
 				}
-				
+
 				const text = document.createElement("span");
 				text.className = "chip-text";
 				text.textContent = chord;
 				contentContainer.appendChild(text);
-				
+
 				chip.appendChild(handle);
 				chip.appendChild(contentContainer);
 				container.appendChild(chip);
@@ -199,7 +199,7 @@ const renderProgression = (ui, state) => {
 			`;
 
 			// Create progressions with chord function badges
-			const progressionWithFunctions = progression.map(chord => {
+			const progressionWithFunctions = progression.map((chord) => {
 				const chordFunction = analyzeChordFunction(chord, keyDefinition);
 				if (chordFunction && chordFunction.roman) {
 					// Return chord with roman numeral in parentheses
@@ -207,7 +207,7 @@ const renderProgression = (ui, state) => {
 				}
 				return chord;
 			});
-			
+
 			const text = document.createElement("span");
 			text.className = "list-item-text";
 			text.textContent = progressionWithFunctions.join(" → ");
@@ -247,7 +247,7 @@ const buildChordResult = (cleaned, keyDefinition) => {
 	const spelledNotes = spellNotesInKey(result.notes, keyDefinition);
 	const spelledWithOctave = spellNotesWithOctaveInKey(
 		spelledNotes.map((note) => `${note}4`),
-		keyDefinition
+		keyDefinition,
 	);
 
 	const chordFunction = analyzeChordFunction(cleaned, keyDefinition);
@@ -285,21 +285,21 @@ const renderChord = (ui, state, chordResult) => {
 
 	// Build output text with chord function analysis
 	let outputText = `${chordResult.symbol} 和弦的組成音是 ${chordResult.notes.join(" ")}`;
-	
+
 	if (chordResult.function) {
 		const roman = chordResult.function.roman;
 		const func = chordResult.function.function;
 		const color = chordResult.function.color;
-		
+
 		// Add function analysis
 		outputText += `\n調性分析: ${roman} (${func})`;
-		
+
 		// Add color coding hint
 		let colorHint = "";
 		if (color === "green") colorHint = "綠色 - 主功能和弦";
 		else if (color === "blue") colorHint = "藍色 - 下屬功能和弦";
 		else if (color === "red") colorHint = "紅色 - 屬功能和弦";
-		
+
 		if (colorHint) {
 			outputText += `\n功能色彩: ${colorHint}`;
 		}
@@ -466,19 +466,15 @@ const init = () => {
 		renderHistory(ui, state);
 	});
 
-	ui.progressionAdd.forEach((btn) =>
-		btn.addEventListener("click", () => addProgressionItem(storage, ui, state))
-	);
+	ui.progressionAdd.forEach((btn) => btn.addEventListener("click", () => addProgressionItem(storage, ui, state)));
 	ui.progressionClear.forEach((btn) =>
 		btn.addEventListener("click", () => {
 			state.progression = [];
 			persistState(storage, state);
 			renderProgression(ui, state);
-		})
+		}),
 	);
-	ui.progressionSave.forEach((btn) =>
-		btn.addEventListener("click", () => saveProgression(storage, ui, state))
-	);
+	ui.progressionSave.forEach((btn) => btn.addEventListener("click", () => saveProgression(storage, ui, state)));
 
 	// 為歷史按鈕添加點擊事件，點擊時填入輸入框
 	ui.historyButtons.addEventListener("click", (event) => {
