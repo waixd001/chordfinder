@@ -1,6 +1,6 @@
 # Harmonia
 
-> Fork from: [不囉唆的和弦代號查詢器 by NiceChord 好和弦](https://github.com/wiwikuan/chordfinder)
+> Fork from: [不囉唆的和弦代號查詢器 by NiceChord 好和弦](https://github.com/wiwikuan/chordfinder)  
 > Modified by: arWai
 
 ---
