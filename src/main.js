@@ -311,6 +311,59 @@ const renderChord = (ui, state, chordResult) => {
 		function: chordResult.function,
 	};
 
+const renderDetectedChords = (ui, state, detectedChords, keyDefinition) => {
+	if (!detectedChords || detectedChords.length === 0) {
+		ui.chordOutput.textContent = "找不到對應的和弦，請確認音符是否正確。";
+		ui.paper.innerHTML = "";
+		return;
+	}
+
+	const topChords = detectedChords.slice(0, 3);
+
+	ui.chordOutput.innerHTML = "";
+	ui.paper.innerHTML = "";
+
+	const title = document.createElement("p");
+	title.textContent = `從音符推測和弦 (${detectedChords.length} 個可能):`;
+	title.className = "mb-2 font-medium";
+	ui.chordOutput.appendChild(title);
+
+	topChords.forEach((chordName, index) => {
+		const chordFunction = analyzeChordFunction(chordName, keyDefinition);
+		const resultEl = document.createElement("div");
+		resultEl.className = "detected-chord mb-2 cursor-pointer hover:bg-white/10 rounded p-2 transition-colors";
+		resultEl.dataset.chord = chordName;
+
+		let html = `<span class="font-bold">${index + 1}. ${chordName}</span>`;
+
+		if (chordFunction) {
+			const roman = chordFunction.roman;
+			const func = chordFunction.function;
+			const color = chordFunction.color;
+			html += ` <span class="chip chip--${color} text-xs">${roman} (${func})</span>`;
+		}
+
+		resultEl.innerHTML = html;
+
+		resultEl.addEventListener("click", () => {
+			ui.input.value = chordName;
+			state.inputMode = "chord";
+			setInputModeToggle(ui, "chord");
+			persistState(storage, state);
+			updateChord(ui, state, storage);
+		});
+
+		ui.chordOutput.appendChild(resultEl);
+	});
+
+	if (detectedChords.length > 3) {
+		const more = document.createElement("p");
+		more.className = "text-sm text-ink/50 mt-2";
+		more.textContent = `還有 ${detectedChords.length - 3} 個其他可能...`;
+		ui.chordOutput.appendChild(more);
+	}
+};
+
 	// Build output text with chord function analysis
 	let outputText = `${chordResult.symbol} 和弦的組成音是 ${chordResult.notes.join(" ")}`;
 
@@ -350,27 +403,30 @@ const renderChord = (ui, state, chordResult) => {
 let inputTimeout = null;
 
 const updateChord = (ui, state, storage) => {
-	const cleaned = sanitizeChordInput(ui.input.value);
+	const input = ui.input.value;
 	const keyDefinition = getKeyDefinition(state.keyRoot, state.keyMode);
-	const chordResult = buildChordResult(cleaned, keyDefinition);
-	renderChord(ui, state, chordResult);
 
-	// 清除之前的定時器
-	if (inputTimeout) {
-		clearTimeout(inputTimeout);
+	const notes = parseNotesInput(input);
+	const validNotes = notes.filter(isValidNote);
+	const detectedType = detectInputType(input);
+
+	if (detectedType !== state.inputMode && validNotes.length >= 3) {
+		state.inputMode = detectedType;
+		setInputModeToggle(ui, detectedType);
 	}
 
-	// 如果輸入有效且不是空的，設置3秒後自動加入歷史
-	if (chordResult.status === "valid" && cleaned) {
-		inputTimeout = setTimeout(() => {
-			// 檢查是否已在歷史中，避免重複
-			if (!state.history.includes(chordResult.symbol)) {
-				state.history.unshift(chordResult.symbol);
-				state.history = state.history.slice(0, 20);
-				persistState(storage, state);
-				renderHistory(ui, state);
-			}
-		}, 3000);
+	if (state.inputMode === "notes" && validNotes.length >= 2) {
+		const detected = Chord.detect(validNotes);
+		renderDetectedChords(ui, state, detected, keyDefinition);
+		state.currentChord = detected.length > 0 ? { symbol: detected[0] } : null;
+	} else {
+		const cleaned = sanitizeChordInput(input);
+		const chordResult = buildChordResult(cleaned, keyDefinition);
+		renderChord(ui, state, chordResult);
+	}
+
+	if (inputTimeout) {
+		clearTimeout(inputTimeout);
 	}
 };
 
@@ -423,6 +479,7 @@ const init = () => {
 	const state = createState(storage);
 
 	setModeToggle(ui, state.keyMode);
+	setInputModeToggle(ui, state.inputMode);
 	populateRootSelect(ui, state, state.keyMode);
 	renderHistory(ui, state);
 	renderProgression(ui, state);
@@ -486,6 +543,24 @@ const init = () => {
 		persistState(storage, state);
 		updateChord(ui, state, storage);
 		renderProgression(ui, state);
+	});
+	ui.modeChord.addEventListener("click", () => {
+		if (state.inputMode === "chord") {
+			return;
+		}
+		state.inputMode = "chord";
+		setInputModeToggle(ui, "chord");
+		persistState(storage, state);
+		updateChord(ui, state, storage);
+	});
+	ui.modeNotes.addEventListener("click", () => {
+		if (state.inputMode === "notes") {
+			return;
+		}
+		state.inputMode = "notes";
+		setInputModeToggle(ui, "notes");
+		persistState(storage, state);
+		updateChord(ui, state, storage);
 	});
 	ui.historyAdd.addEventListener("click", () => addHistoryItem(storage, ui, state));
 	ui.historyClear.addEventListener("click", () => {
