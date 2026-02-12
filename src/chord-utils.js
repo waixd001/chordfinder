@@ -155,14 +155,39 @@ const toAbcKey = (root, mode) => {
 	return `${root}${suffix}`;
 };
 
+// Parse notes input - supports space and comma separators
+const parseNotesInput = (input) => {
+	if (!input || typeof input !== "string") return [];
+	return input
+		.split(/[,\s]+/)
+		.map((n) => n.trim())
+		.filter(Boolean)
+		.map(stripOctave);
+};
+
+// Strip octave numbers from note (e.g., "C4" -> "C")
+const stripOctave = (note) => {
+	if (!note || typeof note !== "string") return "";
+	return note.replace(/\d+$/, "").trim();
+};
+
+// Validate note format (e.g., "C", "C#", "Db")
+const isValidNote = (note) => {
+	if (!note || typeof note !== "string") return false;
+	return /^[A-Ga-g][#b]?$/.test(note.trim());
+};
+
 export {
 	KEY_DEFINITIONS,
 	MAJOR_ROOTS,
 	MINOR_ROOTS,
 	buildAbcChord,
 	getKeyDefinition,
+	isValidNote,
+	parseNotesInput,
 	sanitizeChordInput,
 	spellNotesInKey,
 	spellNotesWithOctaveInKey,
+	stripOctave,
 	toAbcKey,
 };

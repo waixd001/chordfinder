@@ -5,9 +5,12 @@ import {
 	MINOR_ROOTS,
 	buildAbcChord,
 	getKeyDefinition,
+	isValidNote,
+	parseNotesInput,
 	sanitizeChordInput,
 	spellNotesInKey,
 	spellNotesWithOctaveInKey,
+	stripOctave,
 	toAbcKey,
 } from "./chord-utils.js";
 import { analyzeChordFunction } from "./chord-function.js";
@@ -19,6 +22,7 @@ const STORAGE_KEYS = {
 	PROGRESSION_HISTORY: "harmonia.progressionHistory",
 	KEY_ROOT: "harmonia.keyRoot",
 	KEY_MODE: "harmonia.keyMode",
+	INPUT_MODE: "harmonia.inputMode",
 };
 
 const createStorage = (backend) => ({
@@ -46,6 +50,7 @@ const createState = (storage) => ({
 	progressionHistory: storage.load(STORAGE_KEYS.PROGRESSION_HISTORY, []),
 	keyRoot: storage.load(STORAGE_KEYS.KEY_ROOT, "C"),
 	keyMode: storage.load(STORAGE_KEYS.KEY_MODE, "major"),
+	inputMode: storage.load(STORAGE_KEYS.INPUT_MODE, "chord"),
 });
 
 const getUiElements = () => ({
@@ -53,6 +58,8 @@ const getUiElements = () => ({
 	keyRoot: document.querySelector("#key-root"),
 	modeMajor: document.querySelector("#mode-major"),
 	modeMinor: document.querySelector("#mode-minor"),
+	modeChord: document.querySelector("#mode-chord"),
+	modeNotes: document.querySelector("#mode-notes"),
 	chordOutput: document.querySelector("#chordOutput"),
 	paper: document.querySelector("#paper"),
 	historyButtons: document.querySelector("#historyButtons"),
@@ -71,6 +78,27 @@ const setModeToggle = (ui, mode) => {
 	ui.modeMinor.classList.toggle("is-active", !isMajor);
 	ui.modeMajor.setAttribute("aria-pressed", String(isMajor));
 	ui.modeMinor.setAttribute("aria-pressed", String(!isMajor));
+};
+
+const setInputModeToggle = (ui, mode) => {
+	ui.modeChord.classList.toggle("is-active", mode === "chord");
+	ui.modeNotes.classList.toggle("is-active", mode === "notes");
+	ui.modeChord.setAttribute("aria-pressed", String(mode === "chord"));
+	ui.modeNotes.setAttribute("aria-pressed", String(mode === "notes"));
+};
+
+const detectInputType = (input) => {
+	const cleaned = sanitizeChordInput(input);
+	if (!cleaned) return "chord";
+
+	const notes = parseNotesInput(cleaned);
+	const validNotes = notes.filter(isValidNote);
+
+	if (validNotes.length >= 3) {
+		return "notes";
+	}
+
+	return "chord";
 };
 
 const populateRootSelect = (ui, state, mode) => {
