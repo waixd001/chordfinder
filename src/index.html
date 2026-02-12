@@ -46,9 +46,17 @@
 							autocomplete="off"
 							inputmode="text"
 						/>
-						<span class="input-glow"></span>
-					</div>
-					<!-- 歷史按鈕區域 -->
+					<span class="input-glow"></span>
+				</div>
+				<div class="input-mode-toggle" role="group" aria-label="Input Mode">
+					<button id="mode-chord" class="input-mode-toggle__button is-active" type="button" data-mode="chord">
+						和弦代號
+					</button>
+					<button id="mode-notes" class="input-mode-toggle__button" type="button" data-mode="notes">
+						組成音
+					</button>
+				</div>
+				<!-- 歷史按鈕區域 -->
 					<div class="flex items-center justify-between mt-4">
 						<div class="flex items-center gap-3 min-w-0">
 							<p class="text-xs uppercase tracking-[0.2em] text-ink/45 shrink-0">History</p>
