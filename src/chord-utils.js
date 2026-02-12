@@ -177,6 +177,28 @@ const isValidNote = (note) => {
 	return /^[A-Ga-g][#b]?$/.test(note.trim());
 };
 
+// Normalize note to uppercase
+const normalizeNote = (note) => {
+	if (!note || typeof note !== "string") return "";
+	return note.charAt(0).toUpperCase() + note.slice(1).toLowerCase();
+};
+
+// Check if input is a note name only (vs chord symbol)
+const isNoteNameOnly = (input) => {
+	if (!input || typeof input !== "string") return false;
+	return /^[A-Ga-g][#b]?$/.test(input.trim());
+};
+
+// Detect input type: "chord" or "notes"
+const detectInputType = (input) => {
+	const notes = parseNotesInput(input);
+	const validNotes = notes.filter(isValidNote);
+	if (validNotes.length >= 3) {
+		return "notes";
+	}
+	return "chord";
+};
+
 export {
 	KEY_DEFINITIONS,
 	MAJOR_ROOTS,
@@ -184,6 +206,9 @@ export {
 	buildAbcChord,
 	getKeyDefinition,
 	isValidNote,
+	normalizeNote,
+	isNoteNameOnly,
+	detectInputType,
 	parseNotesInput,
 	sanitizeChordInput,
 	spellNotesInKey,

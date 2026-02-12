@@ -289,29 +289,7 @@ const buildChordResult = (cleaned, keyDefinition) => {
 	};
 };
 
-const renderChord = (ui, state, chordResult) => {
-	if (chordResult.status === "empty") {
-		ui.chordOutput.textContent = "";
-		ui.paper.innerHTML = "";
-		state.currentChord = null;
-		return;
-	}
-
-	if (chordResult.status === "invalid") {
-		ui.chordOutput.textContent = "找不到對應的和弦，請確認代號是否正確。";
-		ui.paper.innerHTML = "";
-		state.currentChord = null;
-		return;
-	}
-
-	state.currentChord = {
-		symbol: chordResult.symbol,
-		notes: chordResult.notes,
-		notesWithOctave: chordResult.notesWithOctave,
-		function: chordResult.function,
-	};
-
-const renderDetectedChords = (ui, state, detectedChords, keyDefinition) => {
+const renderDetectedChords = (ui, state, storage, detectedChords, keyDefinition) => {
 	if (!detectedChords || detectedChords.length === 0) {
 		ui.chordOutput.textContent = "找不到對應的和弦，請確認音符是否正確。";
 		ui.paper.innerHTML = "";
@@ -363,6 +341,28 @@ const renderDetectedChords = (ui, state, detectedChords, keyDefinition) => {
 		ui.chordOutput.appendChild(more);
 	}
 };
+
+const renderChord = (ui, state, chordResult) => {
+	if (chordResult.status === "empty") {
+		ui.chordOutput.textContent = "";
+		ui.paper.innerHTML = "";
+		state.currentChord = null;
+		return;
+	}
+
+	if (chordResult.status === "invalid") {
+		ui.chordOutput.textContent = "找不到對應的和弦，請確認代號是否正確。";
+		ui.paper.innerHTML = "";
+		state.currentChord = null;
+		return;
+	}
+
+	state.currentChord = {
+		symbol: chordResult.symbol,
+		notes: chordResult.notes,
+		notesWithOctave: chordResult.notesWithOctave,
+		function: chordResult.function,
+	};
 
 	// Build output text with chord function analysis
 	let outputText = `${chordResult.symbol} 和弦的組成音是 ${chordResult.notes.join(" ")}`;
@@ -417,7 +417,7 @@ const updateChord = (ui, state, storage) => {
 
 	if (state.inputMode === "notes" && validNotes.length >= 2) {
 		const detected = Chord.detect(validNotes);
-		renderDetectedChords(ui, state, detected, keyDefinition);
+		renderDetectedChords(ui, state, storage, detected, keyDefinition);
 		state.currentChord = detected.length > 0 ? { symbol: detected[0] } : null;
 	} else {
 		const cleaned = sanitizeChordInput(input);
