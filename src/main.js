@@ -88,16 +88,12 @@ const setInputModeToggle = (ui, mode) => {
 };
 
 const detectInputType = (input) => {
-	const cleaned = sanitizeChordInput(input);
-	if (!cleaned) return "chord";
-
-	const notes = parseNotesInput(cleaned);
+	// 直接解析原始輸入，不要先使用 sanitizeChordInput（會移除空格）
+	const notes = parseNotesInput(input);
 	const validNotes = notes.filter(isValidNote);
-
 	if (validNotes.length >= 3) {
 		return "notes";
 	}
-
 	return "chord";
 };
 
@@ -415,6 +411,7 @@ const updateChord = (ui, state, storage) => {
 		setInputModeToggle(ui, detectedType);
 	}
 
+	console.log(validNotes.length);
 	if (state.inputMode === "notes" && validNotes.length >= 2) {
 		const detected = Chord.detect(validNotes);
 		renderDetectedChords(ui, state, storage, detected, keyDefinition);
