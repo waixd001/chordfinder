@@ -70,6 +70,10 @@ const getUiElements = () => ({
 	progressionSave: document.querySelectorAll("#progression-save, #progression-save-modal"),
 	progressionCurrent: document.querySelectorAll("#progressionCurrent"),
 	progressionHistory: document.querySelectorAll("#progressionHistory"),
+	sidebarBackdrop: document.querySelector("#sidebar-backdrop"),
+	sidebarContainer: document.querySelector("#sidebar-container"),
+	sidebarClose: document.querySelector("#sidebar-close"),
+	fabOpenProgression: document.querySelector("#fab-open-progression"),
 });
 
 const setModeToggle = (ui, mode) => {
@@ -163,6 +167,14 @@ const renderProgression = (ui, state) => {
 					chip.classList.add(`chip--${chordFunction.color}`);
 				}
 
+				// Add visual indicator for special chord functions
+				if (chordFunction && chordFunction.function === 'borrowed') {
+					chip.classList.add('chip--borrowed');
+				}
+				if (chordFunction && chordFunction.function === 'secondary-dominant') {
+					chip.classList.add('chip--secondary');
+				}
+
 				const handle = document.createElement("span");
 				handle.className = "drag-handle";
 				handle.innerHTML = `
@@ -184,14 +196,23 @@ const renderProgression = (ui, state) => {
 				if (chordFunction && chordFunction.roman) {
 					const romanBadge = document.createElement("span");
 					romanBadge.className = "chip-roman";
-					romanBadge.textContent = chordFunction.roman;
-					romanBadge.title = chordFunction.function;
+					
+					// Add indicator for secondary dominant
+					if (chordFunction.function === 'secondary-dominant') {
+						romanBadge.textContent = '• ' + chordFunction.roman;
+					} else {
+						romanBadge.textContent = chordFunction.roman;
+					}
+					
+					romanBadge.title = chordFunction.description || chordFunction.function;
 					contentContainer.appendChild(romanBadge);
 				}
 
-				const text = document.createElement("span");
-				text.className = "chip-text";
-				text.textContent = chord;
+			const text = document.createElement("span");
+			text.className = "chip-text";
+			const chordData = Chord.get(chord);
+			const formattedChord = chordData.tonic + (chordData.aliases[0] || "");
+			text.textContent = formattedChord;
 				contentContainer.appendChild(text);
 
 				chip.appendChild(handle);
@@ -470,6 +491,20 @@ const bindRemoveHandler = (container, onRemove) => {
 	});
 };
 
+const openSidebar = (ui) => {
+	ui.sidebarBackdrop.classList.remove("hidden");
+	ui.sidebarContainer.classList.remove("closed");
+	ui.sidebarContainer.classList.add("open");
+};
+
+const closeSidebar = (ui) => {
+	ui.sidebarContainer.classList.remove("open");
+	ui.sidebarContainer.classList.add("closed");
+	setTimeout(() => {
+		ui.sidebarBackdrop.classList.add("hidden");
+	}, 300);
+};
+
 const init = () => {
 	const ui = getUiElements();
 	const storage = createStorage(window.localStorage);
@@ -591,6 +626,15 @@ const init = () => {
 			persistState(storage, state);
 			renderProgression(ui, state);
 		});
+	});
+
+	ui.fabOpenProgression?.addEventListener("click", () => openSidebar(ui));
+	ui.sidebarClose?.addEventListener("click", () => closeSidebar(ui));
+	ui.sidebarBackdrop?.addEventListener("click", () => closeSidebar(ui));
+	window.addEventListener("keydown", (e) => {
+		if (e.key === "Escape" && !ui.sidebarBackdrop.classList.contains("hidden")) {
+			closeSidebar(ui);
+		}
 	});
 };
 
