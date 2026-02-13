@@ -4,7 +4,7 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link href="/styles.css" rel="stylesheet" />
-		<title>和弦代號查詢器</title>
+		<title>Harmonia</title>
 	</head>
 	<body class="min-h-screen bg-pearl text-ink antialiased">
 		<div class="absolute inset-0 -z-10 overflow-hidden">
@@ -17,8 +17,8 @@
 			<section class="glass-card space-y-8">
 				<header class="space-y-3">
 					<p class="text-sm uppercase tracking-[0.2em] text-ink/50">Chord Finder</p>
-					<h1 class="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">不囉唆的和弦代號查詢器</h1>
-					<p class="text-base text-ink/65 sm:text-lg">輸入和弦代號，立即看到組成音與指板譜。</p>
+					<h1 class="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">Harmonia</h1>
+					<p class="text-base text-ink/65 sm:text-lg">拆解 組成音 和 和弦</p>
 					<a
 						class="inline-flex items-center gap-2 m-1 text-sm font-medium text-ink/70 hover:text-ink"
 						href="https://nicechord.com"
@@ -46,17 +46,22 @@
 							autocomplete="off"
 							inputmode="text"
 						/>
-					<span class="input-glow"></span>
-				</div>
-				<div class="input-mode-toggle" role="group" aria-label="Input Mode">
-					<button id="mode-chord" class="input-mode-toggle__button is-active" type="button" data-mode="chord">
-						和弦代號
-					</button>
-					<button id="mode-notes" class="input-mode-toggle__button" type="button" data-mode="notes">
-						組成音
-					</button>
-				</div>
-				<!-- 歷史按鈕區域 -->
+						<span class="input-glow"></span>
+					</div>
+					<div class="input-mode-toggle" role="group" aria-label="Input Mode">
+						<button
+							id="mode-chord"
+							class="input-mode-toggle__button is-active"
+							type="button"
+							data-mode="chord"
+						>
+							和弦代號
+						</button>
+						<button id="mode-notes" class="input-mode-toggle__button" type="button" data-mode="notes">
+							組成音
+						</button>
+					</div>
+					<!-- 歷史按鈕區域 -->
 					<div class="flex items-center justify-between mt-4">
 						<div class="flex items-center gap-3 min-w-0">
 							<p class="text-xs uppercase tracking-[0.2em] text-ink/45 shrink-0">History</p>
@@ -117,41 +122,38 @@
 			</section>
 		</main>
 
-		<!-- Progression Sidebar -->
-		<div id="sidebar-backdrop" class="sidebar-backdrop hidden">
-			<div id="sidebar-container" class="sidebar-container closed">
-				<div class="sidebar-header">
-					<div class="flex items-center gap-3">
-						<span class="text-xs uppercase tracking-[0.2em] font-semibold text-ink/60">Progression</span>
+		<!-- Progression Floating Window -->
+		<div id="progression-floating-window" class="progression-window" style="position: fixed; top: 50%; right: 20px; transform: translateY(-50%); width: 380px; max-width: 90vw; max-height: 80vh; display: none;">
+			<div id="progression-window-header" class="progression-window-header">
+				<span class="text-xs uppercase tracking-[0.2em] font-semibold">Progression</span>
+				<button id="sidebar-close" class="progression-window-close" title="Close">×</button>
+			</div>
+			<div id="progression-window-content" class="progression-window-content">
+				<div class="space-y-5">
+					<div class="flex items-center justify-between gap-4">
+						<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Progression</p>
+						<div class="flex gap-2">
+							<button id="progression-add-modal" class="pill-button">加入</button>
+							<button id="progression-clear-modal" class="pill-button pill-button--ghost">清空</button>
+						</div>
 					</div>
-					<button id="sidebar-close" class="sidebar-close-btn" title="Close">×</button>
-				</div>
-				<div class="sidebar-content">
-					<div class="space-y-5">
-						<div class="flex items-center justify-between gap-4">
-							<p class="text-sm uppercase tracking-[0.2em] text-ink/45">Progression</p>
-							<div class="flex gap-2">
-								<button id="progression-add-modal" class="pill-button">加入</button>
-								<button id="progression-clear-modal" class="pill-button pill-button--ghost">清空</button>
-							</div>
-						</div>
-						<div>
-							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Current</p>
-							<div id="progressionCurrent" class="chip-stack mt-2"></div>
-						</div>
-						<div class="flex items-center justify-between gap-4">
-							<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Saved</p>
-							<button id="progression-save-modal" class="pill-button pill-button--soft">儲存進程</button>
-						</div>
-						<div id="progressionHistory" class="list-stack"></div>
+					<div>
+						<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Current</p>
+						<div id="progressionCurrent" class="chip-stack mt-2"></div>
 					</div>
+					<div class="flex items-center justify-between gap-4">
+						<p class="text-xs uppercase tracking-[0.2em] text-ink/45">Saved</p>
+						<button id="progression-save-modal" class="pill-button pill-button--soft">儲存進程</button>
+					</div>
+					<div id="progressionHistory" class="list-stack"></div>
 				</div>
 			</div>
+			<div id="progression-resize-handle" class="progression-resize-handle" title="調整大小"></div>
 		</div>
 
-		<button id="fab-open-progression" class="fab" aria-label="打開和弦進行">
+		<button id="fab-open-progression" class="fab" aria-label="打開/關閉 Progression 視窗">
 			<svg class="fab-icon" viewBox="0 0 24 24">
-				<path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z"/>
+				<path d="M3 18h6v-2H3v2zM3 6v2h18V6H3zm0 7h12v-2H3v2z" />
 			</svg>
 		</button>
 

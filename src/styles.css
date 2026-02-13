@@ -55,7 +55,7 @@
 	}
 
 	.input-mode-toggle__button {
-		@apply rounded-2xl m-1 px-4 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink;
+		@apply rounded-2xl mx-1.5 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.2em] text-ink/50 transition hover:text-ink;
 		transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
@@ -115,7 +115,7 @@
 	}
 
 	.chip {
-		@apply relative flex items-center gap-2 rounded-full bg-ink/10 pl-2 pr-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-ink/70 transition-all duration-200;
+		@apply relative flex items-center gap-2 rounded-full bg-ink/10 pl-2 pr-3 py-1 text-xs font-semibold tracking-[0.2em] text-ink/70 transition-all duration-200;
 	}
 
 	.chip--green {
@@ -181,7 +181,6 @@
 		@apply opacity-100;
 	}
 
-
 	.empty-state {
 		@apply rounded-2xl border border-dashed border-ink/15 bg-white/60 px-4 py-4 text-xs uppercase tracking-[0.2em] text-ink/40;
 	}
@@ -220,57 +219,142 @@
 		min-width: min-content;
 	}
 
-	/* Sidebar Styles */
-	.sidebar-backdrop {
-		@apply fixed inset-0 bg-black/30 backdrop-blur-sm z-40
-			   transition-opacity duration-300;
+	/* Progression Window - Apple Style Floating Window */
+	.progression-window {
+		position: fixed;
+		width: 520px;
+		height: 640px;
+		min-width: 360px;
+		min-height: 280px;
+		max-width: 90vw;
+		background: rgba(255, 255, 255, 0.72);
+		backdrop-filter: blur(20px) saturate(180%);
+		-webkit-backdrop-filter: blur(20px) saturate(180%);
+		border-radius: 20px;
+		border: 1px solid rgba(255, 255, 255, 0.4);
+		box-shadow:
+			0 22px 70px rgba(0, 0, 0, 0.12),
+			0 8px 22px rgba(0, 0, 0, 0.08),
+			inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+		z-index: 50;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
 	}
 
-	.sidebar-backdrop.hidden {
-		@apply opacity-0 pointer-events-none;
+	.progression-window-header {
+		@apply flex items-center justify-between px-6 py-5 select-none;
+		cursor: move;
+		background: linear-gradient(to bottom, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+		border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+		border-radius: 20px 20px 0 0;
 	}
 
-	.sidebar-container {
-		@apply fixed top-0 right-0 h-full w-[480px] max-w-full
-			   bg-slate-900/95 shadow-2xl z-50
-			   transform transition-transform duration-300 ease-out
-			   flex flex-col border-l border-white/10;
+	.progression-window.dragging .progression-window-header {
+		cursor: grabbing;
+		background: linear-gradient(to bottom, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
 	}
 
-	.sidebar-container.closed {
-		@apply translate-x-full;
+	.progression-window.resizing {
+		transition: none;
 	}
 
-	.sidebar-container.open {
-		@apply translate-x-0;
+	.progression-window-title {
+		@apply text-sm font-semibold text-ink/80 tracking-wide;
 	}
 
-	.sidebar-header {
-		@apply flex items-center justify-between px-6 py-4 border-b border-white/10 bg-white/5;
-	}
-
-	.sidebar-content {
+	.progression-window-content {
 		@apply flex-1 overflow-y-auto p-6;
 		scrollbar-width: thin;
-		scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+		scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 	}
 
-	.sidebar-content::-webkit-scrollbar {
-		width: 4px;
+	.progression-window-content::-webkit-scrollbar {
+		width: 6px;
 	}
 
-	.sidebar-content::-webkit-scrollbar-thumb {
-		@apply rounded-full bg-white/10;
+	.progression-window-content::-webkit-scrollbar-track {
+		background: transparent;
 	}
 
-	.sidebar-close-btn {
-		@apply flex h-8 w-8 items-center justify-center rounded-full text-lg font-medium text-white/40 transition hover:bg-white/10 hover:text-white active:scale-90;
+	.progression-window-content::-webkit-scrollbar-thumb {
+		@apply rounded-full;
+		background: rgba(0, 0, 0, 0.15);
 	}
 
-	/* 手機版調整 */
+	.progression-window-content::-webkit-scrollbar-thumb:hover {
+		background: rgba(0, 0, 0, 0.25);
+	}
+
+	.progression-window-close {
+		@apply flex h-7 w-7 items-center justify-center rounded-full text-lg font-medium transition active:scale-90;
+		color: rgba(0, 0, 0, 0.4);
+		background: rgba(0, 0, 0, 0.05);
+	}
+
+	.progression-window-close:hover {
+		background: rgba(0, 0, 0, 0.1);
+		color: rgba(0, 0, 0, 0.7);
+	}
+
+	.progression-resize-handle {
+		position: absolute;
+		bottom: 0;
+		right: 0;
+		width: 36px;
+		height: 36px;
+		cursor: se-resize;
+		z-index: 10;
+		border-radius: 20px 0 20px 0;
+		background: rgba(255, 255, 255, 0.5);
+		backdrop-filter: blur(4px);
+		-webkit-backdrop-filter: blur(4px);
+		transition: background 0.2s ease;
+	}
+
+	.progression-resize-handle::before {
+		content: "";
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+		width: 14px;
+		height: 14px;
+		border-right: 2.5px solid rgba(140, 140, 150, 0.7);
+		border-bottom: 2.5px solid rgba(140, 140, 150, 0.7);
+		border-radius: 0 0 20px 0;
+		transition: all 0.2s ease;
+	}
+
+	.progression-resize-handle:hover {
+		background: rgba(255, 255, 255, 0.9);
+	}
+
+	.progression-resize-handle:hover::before {
+		border-color: rgba(80, 80, 90, 0.9);
+		width: 16px;
+		height: 16px;
+	}
+
+	/* 移動端響應式設計 */
 	@media (max-width: 640px) {
-		.sidebar-container {
-			@apply w-full;
+		.progression-window {
+			width: 100%;
+			max-width: 100%;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			border-radius: 20px 20px 0 0;
+			box-shadow:
+				0 -8px 40px rgba(0, 0, 0, 0.15),
+				inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+		}
+
+		.progression-window-header {
+			border-radius: 20px 20px 0 0;
+		}
+
+		.progression-resize-handle {
+			display: none;
 		}
 	}
 
