@@ -92,6 +92,39 @@ const spellNoteInKey = (note, keyDefinition) => {
 const spellNotesInKey = (notes, keyDefinition) =>
 	notes.map((note) => spellNoteInKey(note, keyDefinition));
 
+const shouldSuggestEnharmonic = (chordRoot, keyDefinition) => {
+	if (!chordRoot || !keyDefinition) {
+		return { shouldSuggest: false };
+	}
+
+	const chroma = Note.get(chordRoot).chroma;
+	if (chroma === null || chroma === undefined) {
+		return { shouldSuggest: false };
+	}
+
+	const keyAccidental = keyDefinition.accidental ?? "sharp";
+	const hasSharp = chordRoot.includes("#");
+	const hasFlat = chordRoot.includes("b");
+
+	if (!hasSharp && !hasFlat) {
+		return { shouldSuggest: false };
+	}
+
+	const currentUses = hasSharp ? "sharp" : "flat";
+
+	if (currentUses === keyAccidental) {
+		return { shouldSuggest: false };
+	}
+
+	const preferredName = selectAccidentalName(chroma, keyAccidental);
+
+	return {
+		shouldSuggest: true,
+		current: chordRoot,
+		preferred: preferredName,
+	};
+};
+
 const spellNotesWithOctaveInKey = (notes, keyDefinition) =>
 	notes.map((note) => {
 		const parsed = Note.get(note);
@@ -211,6 +244,7 @@ export {
 	detectInputType,
 	parseNotesInput,
 	sanitizeChordInput,
+	shouldSuggestEnharmonic,
 	spellNotesInKey,
 	spellNotesWithOctaveInKey,
 	stripOctave,

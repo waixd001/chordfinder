@@ -8,6 +8,7 @@ import {
 	isValidNote,
 	parseNotesInput,
 	sanitizeChordInput,
+	shouldSuggestEnharmonic,
 	spellNotesInKey,
 	spellNotesWithOctaveInKey,
 	stripOctave,
@@ -51,6 +52,7 @@ const createState = (storage) => ({
 	keyRoot: storage.load(STORAGE_KEYS.KEY_ROOT, "C"),
 	keyMode: storage.load(STORAGE_KEYS.KEY_MODE, "major"),
 	inputMode: storage.load(STORAGE_KEYS.INPUT_MODE, "chord"),
+	displaySymbol: null,
 });
 
 const getUiElements = () => ({
@@ -295,6 +297,7 @@ const buildChordResult = (cleaned, keyDefinition) => {
 	);
 
 	const chordFunction = analyzeChordFunction(cleaned, keyDefinition);
+	const enharmonicSuggestion = shouldSuggestEnharmonic(result.tonic, keyDefinition);
 
 	return {
 		status: "valid",
@@ -302,6 +305,7 @@ const buildChordResult = (cleaned, keyDefinition) => {
 		notes: spelledNotes,
 		notesWithOctave: spelledWithOctave,
 		function: chordFunction,
+		enharmonicSuggestion,
 	};
 };
 
@@ -380,32 +384,52 @@ const renderChord = (ui, state, chordResult) => {
 		function: chordResult.function,
 	};
 
-	// Build output text with chord function analysis
-	let outputText = `${chordResult.symbol} 和弦的組成音是 ${chordResult.notes.join(" ")}`;
+	const displaySymbol = state.displaySymbol || chordResult.symbol;
+
+	let outputHtml = `<div class="chord-result">`;
+	outputHtml += `<div class="chord-symbol">${displaySymbol}</div>`;
+	outputHtml += `<div class="chord-notes">組成音：${chordResult.notes.join(" ")}</div>`;
 
 	if (chordResult.function) {
 		const roman = chordResult.function.roman;
 		const func = chordResult.function.function;
 		const color = chordResult.function.color;
+		const colorClass = color ? `chip--${color}` : "";
 
-		// Add function analysis
-		outputText += `\n調性分析: ${roman} (${func})`;
-
-		// Add color coding hint
-		let colorHint = "";
-		if (color === "green") colorHint = "綠色 - 主功能和弦";
-		else if (color === "blue") colorHint = "藍色 - 下屬功能和弦";
-		else if (color === "red") colorHint = "紅色 - 屬功能和弦";
-
-		if (colorHint) {
-			outputText += `\n功能色彩: ${colorHint}`;
-		}
-	} else if (chordResult.status === "valid") {
-		outputText += "\n調性分析: 非調內和弦 (N/A)";
+		outputHtml += `<div class="chord-analysis">`;
+		outputHtml += `<span class="chip ${colorClass}">${roman}</span>`;
+		outputHtml += `<span class="function-desc">${func}</span>`;
+		outputHtml += `</div>`;
+	} else {
+		outputHtml += `<div class="chord-analysis">非調內和弦</div>`;
 	}
 
-	ui.chordOutput.textContent = outputText;
+	if (chordResult.enharmonicSuggestion?.shouldSuggest) {
+		const { current, preferred } = chordResult.enharmonicSuggestion;
+		outputHtml += `<div class="enharmonic-suggestion">`;
+		outputHtml += `<span class="suggestion-icon"></span>`;
+		outputHtml += `<span class="suggestion-text">提示：${current} 在此調性中通常記為 ${preferred}</span>`;
+		outputHtml += `<button class="enharmonic-switch" data-preferred="${preferred}" data-symbol="${chordResult.symbol}">[點擊切換為 ${preferred}]</button>`;
+		outputHtml += `</div>`;
+	}
+
+	outputHtml += `</div>`;
+
+	ui.chordOutput.innerHTML = outputHtml;
 	ui.paper.innerHTML = "";
+
+	const switchBtn = ui.chordOutput.querySelector(".enharmonic-switch");
+	if (switchBtn) {
+		switchBtn.addEventListener("click", () => {
+			const preferred = switchBtn.dataset.preferred;
+			const originalSymbol = switchBtn.dataset.symbol;
+			const current = chordResult.enharmonicSuggestion.current;
+			const suffix = originalSymbol.slice(current.length);
+			const newSymbol = preferred + suffix;
+			state.displaySymbol = newSymbol;
+			renderChord(ui, state, chordResult);
+		});
+	}
 
 	if (chordResult.notesWithOctave.length) {
 		const abcSyntax = buildAbcChord(chordResult.notesWithOctave);
@@ -431,7 +455,8 @@ const updateChord = (ui, state, storage) => {
 		setInputModeToggle(ui, detectedType);
 	}
 
-	console.log(validNotes.length);
+	state.displaySymbol = null;
+
 	if (state.inputMode === "notes" && validNotes.length >= 2) {
 		const detected = Chord.detect(validNotes);
 		renderDetectedChords(ui, state, storage, detected, keyDefinition);
@@ -552,6 +577,7 @@ const init = () => {
 	ui.input.addEventListener("input", () => updateChord(ui, state, storage));
 	ui.keyRoot.addEventListener("change", () => {
 		state.keyRoot = ui.keyRoot.value;
+		state.displaySymbol = null;
 		persistState(storage, state);
 		updateChord(ui, state, storage);
 		renderProgression(ui, state);
@@ -561,6 +587,7 @@ const init = () => {
 			return;
 		}
 		state.keyMode = "major";
+		state.displaySymbol = null;
 		setModeToggle(ui, state.keyMode);
 		populateRootSelect(ui, state, state.keyMode);
 		persistState(storage, state);
@@ -572,6 +599,7 @@ const init = () => {
 			return;
 		}
 		state.keyMode = "minor";
+		state.displaySymbol = null;
 		setModeToggle(ui, state.keyMode);
 		populateRootSelect(ui, state, state.keyMode);
 		persistState(storage, state);
@@ -619,6 +647,7 @@ const init = () => {
 		if (!button) return;
 		const chord = button.textContent;
 		ui.input.value = chord;
+		state.displaySymbol = null;
 		updateChord(ui, state, storage);
 	});
 
