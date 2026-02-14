@@ -16,7 +16,6 @@
 		<main class="mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-14">
 			<section class="glass-card space-y-8">
 				<header class="space-y-3">
-					<p class="text-sm uppercase tracking-[0.2em] text-ink/50">Chord Finder</p>
 					<h1 class="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">Harmonia</h1>
 					<p class="text-base text-ink/65 sm:text-lg">拆解 組成音 和 和弦</p>
 					<a
@@ -123,7 +122,20 @@
 		</main>
 
 		<!-- Progression Floating Window -->
-		<div id="progression-floating-window" class="progression-window" style="position: fixed; top: 50%; right: 20px; transform: translateY(-50%); width: 380px; max-width: 90vw; max-height: 80vh; display: none;">
+		<div
+			id="progression-floating-window"
+			class="progression-window"
+			style="
+				position: fixed;
+				top: 50%;
+				right: 20px;
+				transform: translateY(-50%);
+				width: 380px;
+				max-width: 90vw;
+				max-height: 80vh;
+				display: none;
+			"
+		>
 			<div id="progression-window-header" class="progression-window-header">
 				<span class="text-xs uppercase tracking-[0.2em] font-semibold">Progression</span>
 				<button id="sidebar-close" class="progression-window-close" title="Close">×</button>

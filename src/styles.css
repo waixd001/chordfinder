@@ -115,7 +115,7 @@
 	}
 
 	.chip {
-		@apply relative flex items-center gap-2 rounded-full bg-ink/10 pl-2 pr-3 py-1 text-xs font-semibold tracking-[0.2em] text-ink/70 transition-all duration-200;
+		@apply relative flex items-center gap-2 rounded-full bg-ink/10 px-2.5 py-1 text-xs font-semibold tracking-[0.2em] text-ink/70 transition-all duration-200;
 	}
 
 	.chip--green {
@@ -146,7 +146,7 @@
 	}
 
 	.chip-roman {
-		@apply inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold rounded-full bg-white/90 text-ink/90 border border-ink/10 shadow-sm;
+		@apply inline-flex items-center justify-center min-w-5 h-5 px-1.5 text-[10px] font-bold rounded-full bg-white/90 text-ink/90 border border-ink/10 shadow-sm whitespace-nowrap;
 	}
 
 	.chip-text {
