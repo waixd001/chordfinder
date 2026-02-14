@@ -200,7 +200,7 @@ const renderProgression = (ui, state) => {
 
 					// Add indicator for secondary dominant
 					if (chordFunction.function === "secondary-dominant") {
-						romanBadge.textContent = "• " + chordFunction.roman;
+						romanBadge.textContent = "•" + chordFunction.roman;
 					} else {
 						romanBadge.textContent = chordFunction.roman;
 					}
@@ -395,9 +395,10 @@ const renderChord = (ui, state, chordResult) => {
 		const func = chordResult.function.function;
 		const color = chordResult.function.color;
 		const colorClass = color ? `chip--${color}` : "";
+		const romanDisplay = func === "secondary-dominant" ? "•" + roman : roman;
 
 		outputHtml += `<div class="chord-analysis">`;
-		outputHtml += `<span class="chip ${colorClass}">${roman}</span>`;
+		outputHtml += `<span class="chip ${colorClass}">${romanDisplay}</span>`;
 		outputHtml += `<span class="function-desc">${func}</span>`;
 		outputHtml += `</div>`;
 	} else {
@@ -426,8 +427,8 @@ const renderChord = (ui, state, chordResult) => {
 			const current = chordResult.enharmonicSuggestion.current;
 			const suffix = originalSymbol.slice(current.length);
 			const newSymbol = preferred + suffix;
-			state.displaySymbol = newSymbol;
-			renderChord(ui, state, chordResult);
+			ui.input.value = newSymbol;
+			ui.input.dispatchEvent(new Event("input"));
 		});
 	}
 

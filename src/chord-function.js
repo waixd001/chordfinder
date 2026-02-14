@@ -21,7 +21,7 @@ export const analyzeChordFunction = (chordSymbol, keyDefinition) => {
   // 如果是屬七和弦且不是 V 級，檢測是否為副屬和弦
   const chordData = Chord.get(chordSymbol);
   const isDominant7th = chordData.type === 'dominant' ||
-                        (chordSymbol.includes('7') && !chordSymbol.match(/maj7|m7|dim7|ø/));
+                        (chordSymbol.includes('7') && !chordSymbol.match(/maj7|m7|dim7|ø/i));
   
   if (isDominant7th && scaleDegree !== 5) {
     const secondaryDominant = detectSecondaryDominant(chordSymbol, chordRoot, keyDefinition);
@@ -118,7 +118,7 @@ const detectSecondaryDominant = (chordSymbol, chordRoot, keyDefinition) => {
   // 1. 檢測是否為屬七和弦（dominant 7th）
   const chordData = Chord.get(chordSymbol);
   const isDominant7th = chordData.type === 'dominant' || 
-                        (chordSymbol.includes('7') && !chordSymbol.match(/maj7|m7|dim7|ø/));
+                        (chordSymbol.includes('7') && !chordSymbol.match(/maj7|m7|dim7|ø/i));
   
   if (!isDominant7th) {
     return null;
