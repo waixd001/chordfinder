@@ -169,11 +169,11 @@ const renderProgression = (ui, state) => {
 				}
 
 				// Add visual indicator for special chord functions
-				if (chordFunction && chordFunction.function === 'borrowed') {
-					chip.classList.add('chip--borrowed');
+				if (chordFunction && chordFunction.function === "borrowed") {
+					chip.classList.add("chip--borrowed");
 				}
-				if (chordFunction && chordFunction.function === 'secondary-dominant') {
-					chip.classList.add('chip--secondary');
+				if (chordFunction && chordFunction.function === "secondary-dominant") {
+					chip.classList.add("chip--secondary");
 				}
 
 				const handle = document.createElement("span");
@@ -197,23 +197,23 @@ const renderProgression = (ui, state) => {
 				if (chordFunction && chordFunction.roman) {
 					const romanBadge = document.createElement("span");
 					romanBadge.className = "chip-roman";
-					
+
 					// Add indicator for secondary dominant
-					if (chordFunction.function === 'secondary-dominant') {
-						romanBadge.textContent = '• ' + chordFunction.roman;
+					if (chordFunction.function === "secondary-dominant") {
+						romanBadge.textContent = "• " + chordFunction.roman;
 					} else {
 						romanBadge.textContent = chordFunction.roman;
 					}
-					
+
 					romanBadge.title = chordFunction.description || chordFunction.function;
 					contentContainer.appendChild(romanBadge);
 				}
 
-			const text = document.createElement("span");
-			text.className = "chip-text";
-			const chordData = Chord.get(chord);
-			const formattedChord = chordData.tonic + (chordData.aliases[0] || "");
-			text.textContent = formattedChord;
+				const text = document.createElement("span");
+				text.className = "chip-text";
+				const chordData = Chord.get(chord);
+				const formattedChord = chordData.tonic + (chordData.aliases[0] || "");
+				text.textContent = formattedChord;
 				contentContainer.appendChild(text);
 
 				chip.appendChild(handle);
@@ -407,9 +407,9 @@ const renderChord = (ui, state, chordResult) => {
 	if (chordResult.enharmonicSuggestion?.shouldSuggest) {
 		const { current, preferred } = chordResult.enharmonicSuggestion;
 		outputHtml += `<div class="enharmonic-suggestion">`;
-		outputHtml += `<span class="suggestion-icon"></span>`;
+		outputHtml += `<span class="suggestion-icon">💡</span>`;
 		outputHtml += `<span class="suggestion-text">提示：${current} 在此調性中通常記為 ${preferred}</span>`;
-		outputHtml += `<button class="enharmonic-switch" data-preferred="${preferred}" data-symbol="${chordResult.symbol}">[點擊切換為 ${preferred}]</button>`;
+		outputHtml += `<button class="enharmonic-switch" data-preferred="${preferred}" data-symbol="${chordResult.symbol}">改用 ${preferred}</button>`;
 		outputHtml += `</div>`;
 	}
 
@@ -669,12 +669,12 @@ const init = () => {
 	});
 
 	// Window state persistence
-	const WINDOW_STATE_KEY = 'harmonia:windowState';
+	const WINDOW_STATE_KEY = "harmonia:windowState";
 	const DEFAULT_WINDOW_STATE = {
 		x: window.innerWidth - 400,
 		y: (window.innerHeight - 480) / 2,
 		width: 380,
-		height: 480
+		height: 480,
 	};
 
 	const debounce = (fn, delay) => {
@@ -689,7 +689,7 @@ const init = () => {
 		try {
 			localStorage.setItem(WINDOW_STATE_KEY, JSON.stringify(state));
 		} catch (e) {
-			console.warn('Failed to save window state:', e);
+			console.warn("Failed to save window state:", e);
 		}
 	}, 300);
 
@@ -698,7 +698,7 @@ const init = () => {
 			const saved = localStorage.getItem(WINDOW_STATE_KEY);
 			return saved ? JSON.parse(saved) : DEFAULT_WINDOW_STATE;
 		} catch (e) {
-			console.warn('Failed to load window state:', e);
+			console.warn("Failed to load window state:", e);
 			return DEFAULT_WINDOW_STATE;
 		}
 	};
@@ -714,116 +714,116 @@ const init = () => {
 		let initialLeft, initialTop;
 		let hasConvertedToPx = false;
 
-	const convertPositionToPx = () => {
-		if (hasConvertedToPx) return;
+		const convertPositionToPx = () => {
+			if (hasConvertedToPx) return;
 
-		const rect = floatingWindow.getBoundingClientRect();
-		const computed = window.getComputedStyle(floatingWindow);
+			const rect = floatingWindow.getBoundingClientRect();
+			const computed = window.getComputedStyle(floatingWindow);
 
-		floatingWindow.style.left = rect.left + "px";
-		floatingWindow.style.top = rect.top + "px";
+			floatingWindow.style.left = rect.left + "px";
+			floatingWindow.style.top = rect.top + "px";
+			floatingWindow.style.right = "auto";
+			floatingWindow.style.transform = "none";
+
+			hasConvertedToPx = true;
+			floatingWindow.dataset.initialRight = computed.getPropertyValue("right").trim();
+		};
+
+		const initializeDrag = (e) => {
+			if (e.type === "mousedown" && e.button !== 0) return;
+			if (e.type === "touchstart") e.preventDefault();
+
+			convertPositionToPx();
+
+			isDragging = true;
+			floatingWindow.classList.add("dragging");
+
+			startX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+			startY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
+			initialLeft = floatingWindow.offsetLeft;
+			initialTop = floatingWindow.offsetTop;
+		};
+
+		const onDrag = (e) => {
+			if (!isDragging) return;
+			if (e.type === "touchmove") e.preventDefault();
+
+			const deltaX = (e.type.includes("touch") ? e.touches[0].clientX : e.clientX) - startX;
+			const deltaY = (e.type.includes("touch") ? e.touches[0].clientY : e.clientY) - startY;
+
+			let newX = initialLeft + deltaX;
+			let newY = initialTop + deltaY;
+
+			// Boundary constraints
+			const minX = 40 - floatingWindow.offsetWidth;
+			const maxX = window.innerWidth - 40;
+			const minY = 0;
+			const maxY = window.innerHeight - 40;
+
+			newX = Math.max(minX, Math.min(maxX, newX));
+			newY = Math.max(minY, Math.min(maxY, newY));
+
+			floatingWindow.style.left = newX + "px";
+			floatingWindow.style.top = newY + "px";
+		};
+
+		const stopDrag = () => {
+			if (!isDragging) return;
+
+			isDragging = false;
+			floatingWindow.classList.remove("dragging");
+
+			const rect = floatingWindow.getBoundingClientRect();
+			floatingWindow.dataset.lastLeft = rect.left + "px";
+			floatingWindow.dataset.lastTop = rect.top + "px";
+
+			saveWindowState({
+				x: floatingWindow.offsetLeft,
+				y: floatingWindow.offsetTop,
+				width: floatingWindow.offsetWidth,
+				height: floatingWindow.offsetHeight,
+			});
+		};
+
+		header.addEventListener("mousedown", initializeDrag);
+		header.addEventListener("touchstart", initializeDrag, { passive: false });
+		window.addEventListener("mousemove", onDrag);
+		window.addEventListener("touchmove", onDrag, { passive: false });
+		window.addEventListener("mouseup", stopDrag);
+		window.addEventListener("touchend", stopDrag);
+
+		// Load saved window state
+		const state = loadWindowState();
+		floatingWindow.style.left = state.x + "px";
+		floatingWindow.style.top = state.y + "px";
+		floatingWindow.style.width = state.width + "px";
+		floatingWindow.style.height = state.height + "px";
 		floatingWindow.style.right = "auto";
 		floatingWindow.style.transform = "none";
-
 		hasConvertedToPx = true;
-		floatingWindow.dataset.initialRight = computed.getPropertyValue("right").trim();
+
+		// Handle window resize - keep window in bounds
+		const constrainWindowBounds = () => {
+			const rect = floatingWindow.getBoundingClientRect();
+			const minX = 40 - rect.width;
+			const maxX = window.innerWidth - 40;
+			const minY = 0;
+			const maxY = window.innerHeight - 40;
+
+			let newX = rect.left;
+			let newY = rect.top;
+
+			newX = Math.max(minX, Math.min(maxX, newX));
+			newY = Math.max(minY, Math.min(maxY, newY));
+
+			floatingWindow.style.left = newX + "px";
+			floatingWindow.style.top = newY + "px";
+		};
+
+		window.addEventListener("resize", constrainWindowBounds);
 	};
 
-	const initializeDrag = (e) => {
-		if (e.type === "mousedown" && e.button !== 0) return;
-		if (e.type === "touchstart") e.preventDefault();
-
-		convertPositionToPx();
-
-		isDragging = true;
-		floatingWindow.classList.add("dragging");
-
-		startX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
-		startY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
-		initialLeft = floatingWindow.offsetLeft;
-		initialTop = floatingWindow.offsetTop;
-	};
-
-	const onDrag = (e) => {
-		if (!isDragging) return;
-		if (e.type === "touchmove") e.preventDefault();
-
-		const deltaX = (e.type.includes("touch") ? e.touches[0].clientX : e.clientX) - startX;
-		const deltaY = (e.type.includes("touch") ? e.touches[0].clientY : e.clientY) - startY;
-
-		let newX = initialLeft + deltaX;
-		let newY = initialTop + deltaY;
-
-		// Boundary constraints
-		const minX = 40 - floatingWindow.offsetWidth;
-		const maxX = window.innerWidth - 40;
-		const minY = 0;
-		const maxY = window.innerHeight - 40;
-
-		newX = Math.max(minX, Math.min(maxX, newX));
-		newY = Math.max(minY, Math.min(maxY, newY));
-
-		floatingWindow.style.left = newX + "px";
-		floatingWindow.style.top = newY + "px";
-	};
-
-	const stopDrag = () => {
-		if (!isDragging) return;
-
-		isDragging = false;
-		floatingWindow.classList.remove("dragging");
-
-		const rect = floatingWindow.getBoundingClientRect();
-		floatingWindow.dataset.lastLeft = rect.left + "px";
-		floatingWindow.dataset.lastTop = rect.top + "px";
-
-		saveWindowState({
-			x: floatingWindow.offsetLeft,
-			y: floatingWindow.offsetTop,
-			width: floatingWindow.offsetWidth,
-			height: floatingWindow.offsetHeight
-		});
-	};
-
-	header.addEventListener("mousedown", initializeDrag);
-	header.addEventListener("touchstart", initializeDrag, { passive: false });
-	window.addEventListener("mousemove", onDrag);
-	window.addEventListener("touchmove", onDrag, { passive: false });
-	window.addEventListener("mouseup", stopDrag);
-	window.addEventListener("touchend", stopDrag);
-
-	// Load saved window state
-	const state = loadWindowState();
-	floatingWindow.style.left = state.x + "px";
-	floatingWindow.style.top = state.y + "px";
-	floatingWindow.style.width = state.width + "px";
-	floatingWindow.style.height = state.height + "px";
-	floatingWindow.style.right = "auto";
-	floatingWindow.style.transform = "none";
-	hasConvertedToPx = true;
-
-	// Handle window resize - keep window in bounds
-	const constrainWindowBounds = () => {
-		const rect = floatingWindow.getBoundingClientRect();
-		const minX = 40 - rect.width;
-		const maxX = window.innerWidth - 40;
-		const minY = 0;
-		const maxY = window.innerHeight - 40;
-
-		let newX = rect.left;
-		let newY = rect.top;
-
-		newX = Math.max(minX, Math.min(maxX, newX));
-		newY = Math.max(minY, Math.min(maxY, newY));
-
-		floatingWindow.style.left = newX + "px";
-		floatingWindow.style.top = newY + "px";
-	};
-
-	window.addEventListener("resize", constrainWindowBounds);
-};
-
-initFloatingWindowDrag();
+	initFloatingWindowDrag();
 
 	// Floating window resize logic
 	const initFloatingWindowResize = () => {
@@ -886,7 +886,7 @@ initFloatingWindowDrag();
 				x: floatingWindow.offsetLeft,
 				y: floatingWindow.offsetTop,
 				width: floatingWindow.offsetWidth,
-				height: floatingWindow.offsetHeight
+				height: floatingWindow.offsetHeight,
 			});
 		}
 	};

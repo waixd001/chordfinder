@@ -415,11 +415,8 @@
 }
 
 .enharmonic-switch {
-	@apply text-amber-600 hover:text-amber-800 underline cursor-pointer transition-colors;
-	background: none;
+	@apply px-3 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-700 text-xs font-medium shadow-sm hover:shadow transition-all duration-200 cursor-pointer;
 	border: none;
-	padding: 0;
-	font: inherit;
 }
 
 }
